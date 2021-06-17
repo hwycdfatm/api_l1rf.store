@@ -1,56 +1,60 @@
 const Essay = require('../models/essayModel')
 
 class EssayController {
-	get(req, res) {
-		Essay.find()
-			.then((essay) => {
-				res.status(200).json(essay)
-			})
-			.catch((err) => {
-				res.status(500).json({ message: 'Không tìm thấy bài văn nào' })
-			})
+	async get(req, res) {
+		try {
+			const essay = await Essay.find()
+			if (!essay) res.status(400).json({ message: 'Không có bài viết nào' })
+			res.status(200).json({ status: 'Success', data: essay })
+		} catch (error) {
+			res.status(500).json({ message: 'Lỗi server', error })
+		}
 	}
 
-	getOneById(req, res) {
-		Essay.findOne({ _id: req.params.id })
-			.then((essay) => {
-				res.status(200).json(essay)
-			})
-			.catch((err) => {
-				res.status(500).json({ message: 'Không tìm thấy bài văn nào' })
-			})
+	async getOneById(req, res) {
+		try {
+			const id = req.params.id
+			const essay = await Essay.findOne({ _id: id })
+			if (!essay) res.status(400).json({ message: 'Không có bài viết nào' })
+			res.status(200).json({ status: 'Success', data: essay })
+		} catch (error) {
+			res.status(500).json({ message: 'Lỗi Server', error })
+		}
 	}
 
-	create(req, res) {
+	async create(req, res) {
 		const essay = new Essay(req.body)
-		essay
-			.save()
-			.then(() => {
-				res.status(200).json({ message: 'Tạo bài viết thành công' })
-			})
-			.catch((err) => {
-				res.status(500).json({ message: 'Không thể tạo bài viết' })
-			})
+		try {
+			const status = await essay.save()
+			if (!status) res.status(400).json({ message: 'Không thể tạo bài viết' })
+			res.status(200).json({ status: 'Success' })
+		} catch (error) {
+			res.status(500).json({ message: 'Lỗi Server', error })
+		}
 	}
 
-	update(req, res) {
+	async update(req, res) {
 		const id = req.params.id
 		const data = req.body
-		Essay.updateOne({ _id: id }, data)
-			.then(() => {
-				res.status(200).json({ message: 'Cập nhật bài viết thành công' })
-			})
-			.catch((error) => {
-				res.status(500).json({ message: 'Không thể cập nhật bài viết' })
-			})
+		try {
+			const status = await Essay.updateOne({ _id: id }, data)
+			if (!status)
+				res.status(400).json({ message: 'Không thể cập nhật bài viết' })
+			res.status(200).json({ message: 'Cập nhật bài viết thành công' })
+		} catch (error) {
+			res.status(500).json({ message: 'Lỗi Server', error })
+		}
 	}
 
-	delete(req, res) {
-		Essay.findByIdAndDelete(req.params.id)
-			.then(res.status(200).json({ message: 'Xóa bài viết thành công' }))
-			.catch((err) => {
-				res.status(500).json({ message: 'Không thể xóa bài viết' })
-			})
+	async delete(req, res) {
+		try {
+			const id = req.params.id
+			const status = await Essay.findByIdAndRemove(id)
+			if (!status) res.status(400).json({ message: 'Không thể xóa bài viết' })
+			res.status(200).json({ message: 'Xóa bài viết thành công' })
+		} catch (error) {
+			res.status(500).json({ message: 'Lỗi Server', error })
+		}
 	}
 }
 
