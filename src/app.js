@@ -6,6 +6,9 @@ const mongoose = require('mongoose')
 const fileUpload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
 
+// Route
+const route = require('./routes')
+
 // Connect Database
 const { connectDB } = require('./config/db')
 connectDB()
@@ -31,17 +34,13 @@ app.use(cors())
 app.use(
 	fileUpload({
 		useTemplate: true,
+		useTempFiles: true,
 	})
 )
 
-// Routers
-const userRouter = require('./routes/userRouter')
-const categoryRouter = require('./routes/categoryRouter')
-const uploadRouter = require('./routes/upload')
-// App Run
-app.use('/user', userRouter)
-app.use('/api', categoryRouter)
-app.use('/api', uploadRouter)
+// Route run
+route(app)
+
 // Run & lisen port
 app.listen(port, () => {
 	console.log(`Example app listening at http://localhost:${port}`)

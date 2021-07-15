@@ -5,11 +5,10 @@ const auth = require('../middlewares/auth')
 const authAdmin = require('../middlewares/authAdmin')
 
 // RESTFUL API
-router
-	.route('/category')
-	.get(category.getCategory)
-	.post(auth, authAdmin, category.createCategory)
-	.put(auth, authAdmin, category.updateCategory)
-	.delete(auth, authAdmin, category.deleteCategory)
+router.get('/', category.getCategory)
+router.get('/:slug', category.getCategoryBySlug)
+router.post('/', auth, authAdmin, category.createCategory)
+router.put('/', auth, authAdmin, category.updateCategory)
+router.delete('/', auth, authAdmin, category.deleteCategory)
 
 module.exports = router

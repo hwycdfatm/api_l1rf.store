@@ -12,7 +12,7 @@ const categorySchema = mongoose.Schema(
 			type: String,
 			default: '',
 		},
-		path: {
+		slug: {
 			type: String,
 			required: true,
 			trim: true,
