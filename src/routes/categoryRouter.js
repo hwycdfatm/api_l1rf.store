@@ -8,7 +8,7 @@ const authAdmin = require('../middlewares/authAdmin')
 router.get('/', category.getCategory)
 router.get('/:slug', category.getCategoryBySlug)
 router.post('/', auth, authAdmin, category.createCategory)
-router.put('/', auth, authAdmin, category.updateCategory)
-router.delete('/', auth, authAdmin, category.deleteCategory)
+router.put('/:id', auth, authAdmin, category.updateCategory)
+router.delete('/:id', auth, authAdmin, category.deleteCategory)
 
 module.exports = router
