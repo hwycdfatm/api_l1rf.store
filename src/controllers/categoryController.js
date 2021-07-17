@@ -7,7 +7,7 @@ const categoryController = {
 		try {
 			const categories = await Category.find()
 
-			res.status(200).json({ status: 'Success', categories })
+			res.status(200).json({ status: 'Success', data: categories })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
@@ -28,7 +28,7 @@ const categoryController = {
 	// Tạo mới danh mục
 	createCategory: async (req, res) => {
 		try {
-			const { name, image, path } = req.body
+			const { name, image, slug } = req.body
 
 			const category = await Category.findOne({ name })
 
@@ -37,7 +37,7 @@ const categoryController = {
 					.status(400)
 					.json({ status: 'Fail', message: 'Danh mục đã tồn tại' })
 
-			const newCategory = new Category({ name, image, path })
+			const newCategory = new Category({ name, image, slug })
 
 			await newCategory.save()
 

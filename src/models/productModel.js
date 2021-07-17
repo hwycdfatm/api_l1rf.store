@@ -2,19 +2,13 @@ const mongoose = require('mongoose')
 
 const productSchema = mongoose.Schema(
 	{
-		product_id: {
-			type: String,
-			required: true,
-			unique: true,
-			trim: true,
-		},
 		title: {
 			type: String,
 			required: true,
 		},
 		description: {
 			type: String,
-			required: true,
+			default: 'Một sản phẩm tuyệt vời đến từ vị trí của Shop :3',
 		},
 		content: {
 			type: String,
@@ -31,6 +25,7 @@ const productSchema = mongoose.Schema(
 		slug: {
 			type: String,
 			required: true,
+			unique: true,
 			trim: true,
 		},
 		price: {
@@ -42,7 +37,9 @@ const productSchema = mongoose.Schema(
 			required: true,
 		},
 	},
-	{ timestamps: true }
+	{
+		timestamps: true,
+	}
 )
 
 module.exports = mongoose.model('Product', productSchema)
