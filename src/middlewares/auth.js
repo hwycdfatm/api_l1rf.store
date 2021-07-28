@@ -10,7 +10,7 @@ const auth = (req, res, next) => {
 			if (error)
 				return res
 					.status(400)
-					.json({ message: 'Bạn không có quyền truy cập 1!' })
+					.json({ message: 'Bạn không có quyền truy cập !' })
 
 			req.user = user
 			next()

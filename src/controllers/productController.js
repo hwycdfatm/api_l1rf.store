@@ -1,5 +1,15 @@
 const Product = require('../models/productModel')
 
+// Phân trang, các bộ lọc, blalala
+class APIfeature {
+	constructor(qr, qrString) {
+		this.qr = qr
+		this.qrString = qrString
+	}
+	filtering() {}
+	sort() {}
+	paginating() {}
+}
 const productController = {
 	// lấy sản phẩm với slug EX: /product/l1rf-tee-shirt-ultimate
 	getProduct: async (req, res) => {
@@ -67,6 +77,7 @@ const productController = {
 				price,
 				inStock,
 			} = req.body
+
 			// Hiện tại đang có lỗi với trường hợp này và đợi xử lý sau
 			const product = await Product.findByIdAndUpdate(id, {
 				title,
@@ -78,6 +89,7 @@ const productController = {
 				price,
 				inStock,
 			})
+
 			if (!product)
 				return res
 					.status(400)

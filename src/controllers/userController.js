@@ -6,6 +6,7 @@ const userController = {
 	register: async (req, res) => {
 		try {
 			const { name, email, password } = req.body
+
 			const user = await User.findOne({ email })
 			if (user)
 				return res.status(400).json({ message: 'Email đã được đăng ký.' })

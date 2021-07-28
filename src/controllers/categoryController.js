@@ -1,6 +1,6 @@
 // CATEGORY
 const Category = require('../models/categoryModel')
-
+const Product = require('../models/productModel')
 const categoryController = {
 	// lấy danh mục
 	getCategory: async (req, res) => {
@@ -12,15 +12,15 @@ const categoryController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-	// lấy danh mục từ slug EX: /category/pants
-	getCategoryBySlug: async (req, res) => {
+	getProductsByCategory: async (req, res) => {
 		try {
-			const categories = await Category.findOne({ slug: req.params.slug })
-			if (!categories)
+			const products = await Product.find({ category: req.params.category })
+			if (!products)
 				return res
 					.status(400)
-					.json({ status: 'Fail', message: 'Không tìm thấy' })
-			res.status(200).json({ status: 'Success', categories })
+					.json({ status: 'Not Found', message: 'Không có sản phẩm nào' })
+
+			return res.status(200).json({ status: 'success', data: products })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}

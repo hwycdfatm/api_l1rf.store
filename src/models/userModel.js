@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		address: {
+			type: String,
+		},
 		role: {
 			type: String,
 			default: 'member',
