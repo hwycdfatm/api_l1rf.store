@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const userController = {
 	register: async (req, res) => {
 		try {
-			const { name, email, password } = req.body
+			const { name, email, password, address } = req.body
 
 			const user = await User.findOne({ email })
 			if (user)
@@ -19,6 +19,7 @@ const userController = {
 			const newUser = new User({
 				name,
 				email,
+				address,
 				password: passwordHash,
 			})
 
@@ -44,12 +45,18 @@ const userController = {
 			const { email, password } = req.body
 
 			const user = await User.findOne({ email })
-			const mathPassword = await bcrypt.compare(password, user.password)
 
-			if (!user || !mathPassword)
+			if (!user)
 				return res
 					.status(400)
-					.json({ message: 'Thông tin đăng nhập không hợp lệ !' })
+					.json({ message: 'Thông tin đăng nhập không hợp lệ' })
+
+			const mathPassword = await bcrypt.compare(password, user.password)
+
+			if (!mathPassword)
+				return res
+					.status(400)
+					.json({ message: 'Thông tin đăng nhập không hợp lệ' })
 
 			// Tạo ACCESS TOKEN
 			const accessToken = createAccessToken({ id: user._id })

@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const Product = require('../controllers/productController')
 
+router.get('/', Product.getProducts)
 router.get('/:slug', Product.getProduct)
 router.post('/', Product.createProduct)
 router.put('/:id', Product.updateProduct)
