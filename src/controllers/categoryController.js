@@ -1,8 +1,10 @@
 // CATEGORY
 const Category = require('../models/categoryModel')
+
 const categoryController = {
 	// lấy danh mục
-	getCategory: async (req, res) => {
+	// [GET] /api/category/
+	getCategorys: async (req, res) => {
 		try {
 			const categories = await Category.find()
 
@@ -13,6 +15,7 @@ const categoryController = {
 	},
 
 	// Tạo mới danh mục
+	// [POST] /api/category
 	createCategory: async (req, res) => {
 		try {
 			const { name, image, slug } = req.body
@@ -36,6 +39,7 @@ const categoryController = {
 		}
 	},
 	// chỉnh sửa danh mục
+	// [PUT] /api/category/:id
 	updateCategory: async (req, res) => {
 		try {
 			const id = req.params.id
@@ -56,7 +60,9 @@ const categoryController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+
 	// xóa danh mục
+	// [DELETE] /api/category/:id
 	deleteCategory: async (req, res) => {
 		try {
 			const id = req.params.id

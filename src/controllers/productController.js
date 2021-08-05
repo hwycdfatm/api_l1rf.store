@@ -1,51 +1,8 @@
 const Product = require('../models/productModel')
 
-// Phân trang, các bộ lọc, blalala
-class APIfeatures {
-	constructor(query, queryString) {
-		this.query = query
-		this.queryString = queryString
-	}
-	filtering() {
-		const queryObj = { ...this.queryString } //queryString = req.query
-
-		const excludedFields = ['page', 'sort', 'limit']
-		excludedFields.forEach((el) => delete queryObj[el])
-
-		let queryStr = JSON.stringify(queryObj)
-		queryStr = queryStr.replace(
-			/\b(gte|gt|lt|lte|regex)\b/g,
-			(match) => '$' + match
-		)
-
-		//    gte = greater than or equal
-		//    lte = lesser than or equal
-		//    lt = lesser than
-		//    gt = greater than
-		this.query.find(JSON.parse(queryStr))
-
-		return this
-	}
-	sorting() {
-		if (this.queryString.sort) {
-			const sortBy = this.queryString.sort.split(',').join(' ')
-			this.query = this.query.sort(sortBy)
-		} else {
-			this.query = this.query.sort('-createdAt')
-		}
-
-		return this
-	}
-	paginating() {
-		const page = this.queryString.page * 1 || 1
-		const limit = this.queryString.limit * 1 || 3
-		const skip = (page - 1) * limit
-		this.query = this.query.skip(skip).limit(limit)
-		return this
-	}
-}
 const productController = {
-	// lấy sản phẩm với slug EX: /product/l1rf-tee-shirt-ultimate
+	// lấy sản phẩm với slug
+	// [GET] /api/product/:slug
 	getProduct: async (req, res) => {
 		try {
 			const product = await Product.findOne({ slug: req.params.slug })
@@ -60,21 +17,31 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+
+	// Lấy các sản phẩm thuộc nhóm danh mục nào
+	// [GET] /api/product?category=????
 	getProducts: async (req, res) => {
 		try {
-			const features = new APIfeatures(Product.find(), req.query)
-				.filtering()
-				.sorting()
-				.paginating()
+			const { category, _page, _limit, _sort, _method } = req.query
 
-			const products = await features.query
-			return res
-				.status(200)
-				.json({ status: 'success', result: products.length, data: products })
+			const limit = _limit || 9
+			const page = _page || 1
+
+			const products = await Product.find()
+			const total = await Product.countDocuments()
+
+			return res.status(200).json({
+				status: 'success',
+				pagination: { page, limit, total },
+				data: products,
+			})
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+
+	// Tạo mới sản phẩm
+	// [POST] /api/product/
 	createProduct: async (req, res) => {
 		try {
 			const {
@@ -113,6 +80,9 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+
+	// Cập nhật sản phẩm
+	// [PUT] /api/product/:id
 	updateProduct: async (req, res) => {
 		try {
 			const id = req.params.id
@@ -150,6 +120,9 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+
+	// Xóa sản phẩm
+	// [DELETE] /api/product/:id
 	deleteProduct: async (req, res) => {
 		try {
 			const id = req.params.id
