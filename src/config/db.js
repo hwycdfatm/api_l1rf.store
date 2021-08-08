@@ -8,7 +8,8 @@ const connectDB = async () => {
 			useFindAndModify: false,
 			useCreateIndex: true,
 		})
-		console.log('Kết nối DB thành công')
+
+		conn ? console.log('Kết nối DB thành công') : console.log('hello')
 	} catch (error) {
 		console.log('Kết nối DB thất bại')
 	}

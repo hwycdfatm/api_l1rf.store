@@ -22,17 +22,29 @@ const productController = {
 	// [GET] /api/product?category=????
 	getProducts: async (req, res) => {
 		try {
-			const { category, _page, _limit, _sort, _method } = req.query
+			// Filter by category
+			const category = req.query.category
 
-			const limit = _limit || 9
-			const page = _page || 1
+			// Pagination
+			const _limit = parseInt(req.query._limit) || 9
+			const _page = parseInt(req.query._page) || 1
+			const _skip = (_page - 1) * _limit
 
-			const products = await Product.find()
-			const total = await Product.countDocuments()
+			const sort = req.query.sort || '-createdAt'
+
+			const products = await Product.find(category ? { category } : {})
+				.limit(_limit)
+				.skip(_skip)
+				.sort(sort)
+
+			const _total_Product = await Product.countDocuments(
+				category ? { category } : {}
+			)
+			const _total_Page = Math.ceil(_total_Product / _limit)
 
 			return res.status(200).json({
 				status: 'success',
-				pagination: { page, limit, total },
+				pagination: { _page, _total_Page, _total_Product },
 				data: products,
 			})
 		} catch (error) {
