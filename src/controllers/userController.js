@@ -114,6 +114,17 @@ const userController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+	addCart: async (req, res) => {
+		try {
+			const user = await User.findById(req.user.id)
+			if (!user)
+				return res.status(404).json({ message: 'Tài khoản không tồn tại' })
+			await User.findOneAndUpdate({ _id: req.user.id }, { cart: req.body.cart })
+			return res.status(200).json({ message: 'Thêm vào giỏ hàng thành công' })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
 }
 
 const createAccessToken = (user) => {

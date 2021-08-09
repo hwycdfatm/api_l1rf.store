@@ -16,4 +16,6 @@ router.get('/refresh_token', userController.refreshToken)
 // Thông tin user
 router.get('/info', auth, userController.info)
 
+router.patch('/addcart', auth, userController.addCart)
+
 module.exports = router
