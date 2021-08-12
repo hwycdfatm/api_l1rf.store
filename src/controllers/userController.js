@@ -65,8 +65,11 @@ const userController = {
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
 				path: '/user/refresh_token',
+				maxAge: 7 * 24 * 60 * 60 * 1000,
 			})
-			res.json({ accessToken })
+			return res
+				.status(200)
+				.json({ message: 'Đăng nhập thành công', accessToken })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
