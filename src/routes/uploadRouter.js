@@ -1,16 +1,36 @@
 const router = require('express').Router()
 const fs = require('fs')
-const cloudinary = require('cloudinary')
-const uploadCloudinary = require('../middlewares/uploadCloudinary')
+
+const {
+	uploadCloudinary,
+	removeCloudinary,
+} = require('../helper/cloudinaryHelper')
 const auth = require('../middlewares/auth')
 const authAdmin = require('../middlewares/authAdmin')
 
-cloudinary.config({
-	cloud_name: process.env.CLOUD_NAME,
-	api_key: process.env.CLOUD_API_KEY,
-	api_secret: process.env.CLOUD_API_SECRET,
-})
+// middleware handle check file image
+function checkFile(file) {
+	if (file.size > 1024 * 1024 * 1024) {
+		removeTempFile(file.tempFilePath)
+		return {
+			status: false,
+			message: 'Kích thước file quá lớn (<3MB)',
+		}
+	}
+	if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpeg') {
+		removeTempFile(file.tempFilePath)
+		return {
+			status: false,
+			message: 'Định dạng hình ảnh không hợp lệ',
+		}
+	}
+	return {
+		status: true,
+		message: 'Chấp nhận',
+	}
+}
 
+// [POST] /api/upload == body is object or 1 file
 router.post('/upload', auth, authAdmin, async (req, res) => {
 	try {
 		const images = []
@@ -19,36 +39,20 @@ router.post('/upload', auth, authAdmin, async (req, res) => {
 		const files = req.files.file
 		if (files.length > 1) {
 			for (let file of files) {
-				if (file.size > 1024 * 1024 * 1024) {
-					return res
-						.status(400)
-						.json({ message: 'Kích thước hình ảnh quá lớn (3Mb)' })
-				}
-				if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpeg') {
-					return res
-						.status(400)
-						.json({ message: 'Định dạng hình ảnh không hợp lệ' })
-				}
+				const check = checkFile(file)
+				if (!check.status)
+					return res.status(400).json({ status: 'Lỗi', message: check.message })
 				const temp = await uploadCloudinary(file)
+				removeTempFile(file.tempFilePath)
 				images.push(temp)
 			}
 			return res.status(200).json({ images })
 		}
-
-		if (files.size > 1024 * 1024 * 1024) {
-			removeTempFile(files.tempFilePath)
-			return res
-				.status(400)
-				.json({ message: 'Kích thước hình ảnh quá lớn (3Mb)' })
-		}
-
-		if (files.mimetype !== 'image/png' && files.mimetype !== 'image/jpeg') {
-			removeTempFile(file.tempFilePath)
-			return res
-				.status(400)
-				.json({ message: 'Định dạng hình ảnh không hợp lệ' })
-		}
+		const check = checkFile(files)
+		if (!check.status)
+			return res.status(400).json({ status: 'Lỗi', message: check.message })
 		const tempImage = await uploadCloudinary(files)
+		removeTempFile(files.tempFilePath)
 		if (tempImage)
 			return res
 				.status(200)
@@ -96,16 +100,18 @@ router.post('/upload', auth, authAdmin, async (req, res) => {
 // 	}
 // })
 
-router.post('/destroy', auth, authAdmin, (req, res) => {
+// [POST] /api/destroy === body is array
+router.post('/destroy', auth, authAdmin, async (req, res) => {
 	try {
 		const { public_id } = req.body
-		if (!public_id)
-			return res.status(400).json({ message: 'Không có ảnh nào để mà xóa' })
 
-		cloudinary.v2.uploader.destroy(public_id, async (error) => {
-			if (error) throw error
-			res.status(200).json({ message: 'Xóa ảnh thành công' })
-		})
+		if (!public_id || public_id.length === 0)
+			return res.status(400).json({ message: 'Không có ảnh nào để mà xóa' })
+		const ids = [...public_id]
+
+		const check = await removeCloudinary(ids)
+
+		if (check) return res.status(200).json({ message: 'Xóa ảnh thành công' })
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
 	}
