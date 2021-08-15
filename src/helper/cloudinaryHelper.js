@@ -15,7 +15,7 @@ function uploadCloudinary(file) {
 				if (error) return reject(error)
 				return resolve({
 					public_id: results.public_id,
-					url: results.secure_url,
+					secure_url: results.secure_url,
 				})
 			}
 		)
