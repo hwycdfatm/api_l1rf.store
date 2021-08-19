@@ -14,7 +14,7 @@ const productSchema = mongoose.Schema(
 			type: String,
 			default: 'Một sản phẩm tuyệt vời đến từ vị trí của Shop :3',
 		},
-		image: {
+		images: {
 			type: Object,
 			required: true,
 		},

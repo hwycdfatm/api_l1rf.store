@@ -26,7 +26,8 @@
     "express-fileupload": "^1.2.1",
     "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.13"
+    "mongoose": "^5.12.13",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "morgan": "^1.10.0",

@@ -9,13 +9,15 @@ const auth = require('../middlewares/auth')
 router.post('/register', userController.register)
 // Đăng nhập
 router.post('/login', userController.login)
+// Đăng nhập với Facebook
+router.post('/loginwithfacebook', userController.loginWithFacebook)
 // Đăng xuất
 router.get('/logout', userController.logout)
 // Làm mới Token
 router.get('/refresh_token', userController.refreshToken)
 // Thông tin user
 router.get('/info', auth, userController.info)
-
+// Giỏ hàng
 router.patch('/addcart', auth, userController.addCart)
 
 module.exports = router

@@ -11,14 +11,14 @@ const authAdmin = require('../middlewares/authAdmin')
 // middleware handle check file image
 function checkFile(file) {
 	if (file.size > 1024 * 1024 * 1024) {
-		removeTempFile(file.tempFilePath)
+		fs.unlinkSync(file.tempFilePath)
 		return {
 			status: false,
 			message: 'Kích thước file quá lớn (<3MB)',
 		}
 	}
 	if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpeg') {
-		removeTempFile(file.tempFilePath)
+		fs.unlinkSync(file.tempFilePath)
 		return {
 			status: false,
 			message: 'Định dạng hình ảnh không hợp lệ',
@@ -31,6 +31,7 @@ function checkFile(file) {
 }
 
 // [POST] /api/upload == body is object or 1 file
+
 router.post('/upload', auth, authAdmin, async (req, res) => {
 	try {
 		const images = []
@@ -43,7 +44,7 @@ router.post('/upload', auth, authAdmin, async (req, res) => {
 				if (!check.status)
 					return res.status(400).json({ status: 'Lỗi', message: check.message })
 				const temp = await uploadCloudinary(file)
-				removeTempFile(file.tempFilePath)
+				fs.unlinkSync(file.tempFilePath)
 				images.push(temp)
 			}
 			return res.status(200).json({ images })
@@ -52,11 +53,17 @@ router.post('/upload', auth, authAdmin, async (req, res) => {
 		if (!check.status)
 			return res.status(400).json({ status: 'Lỗi', message: check.message })
 		const tempImage = await uploadCloudinary(files)
-		removeTempFile(files.tempFilePath)
+		fs.unlinkSync(files.tempFilePath)
+
 		if (tempImage)
-			return res
-				.status(200)
-				.json({ public_id: tempImage.public_id, url: tempImage.secure_url })
+			return res.status(200).json({
+				images: [
+					{
+						public_id: tempImage.public_id,
+						url: tempImage.url,
+					},
+				],
+			})
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
 	}
@@ -101,6 +108,7 @@ router.post('/upload', auth, authAdmin, async (req, res) => {
 // })
 
 // [POST] /api/destroy === body is array
+
 router.post('/destroy', auth, authAdmin, async (req, res) => {
 	try {
 		const { public_id } = req.body
@@ -111,16 +119,11 @@ router.post('/destroy', auth, authAdmin, async (req, res) => {
 
 		const check = await removeCloudinary(ids)
 
-		if (check) return res.status(200).json({ message: 'Xóa ảnh thành công' })
+		if (check === 'Xóa ảnh thành công')
+			return res.status(200).json({ message: check })
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
 	}
 })
-
-const removeTempFile = (path) => {
-	fs.unlink(path, (err) => {
-		if (err) throw err
-	})
-}
 
 module.exports = router

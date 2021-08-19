@@ -1,11 +1,15 @@
 const User = require('../models/userModel')
+
 const bcrypt = require('bcrypt')
+
 const jwt = require('jsonwebtoken')
+
+const fetch = require('node-fetch')
 
 const userController = {
 	register: async (req, res) => {
 		try {
-			const { name, email, password, address } = req.body
+			const { name, email, password, address, avatar } = req.body
 
 			const user = await User.findOne({ email })
 			if (user)
@@ -33,9 +37,10 @@ const userController = {
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
 				path: '/user/refresh_token',
+				maxAge: 7 * 24 * 60 * 60 * 1000,
 			})
 
-			res.json({ message: 'Đăng ký thành công' })
+			res.json({ message: 'Đăng ký thành công', accessToken })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
@@ -70,6 +75,64 @@ const userController = {
 			return res
 				.status(200)
 				.json({ message: 'Đăng nhập thành công', accessToken })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
+	loginWithFacebook: async (req, res) => {
+		try {
+			const { userID, accessToken } = req.body
+
+			let urlGraph = `https://graph.facebook.com/v11.0/${userID}?fields=name%2Cemail%2Cpicture&access_token=${accessToken}`
+
+			const data = await fetch(urlGraph, {
+				method: 'GET',
+			})
+			const result = await data.json()
+
+			const { email, name, picture } = result
+
+			const user = await User.findOne({ email })
+
+			// Nếu tồn tại email thì đăng nhập và trả về token
+			if (user) {
+				const accessToken = createAccessToken({ id: user._id })
+				const refreshToken = createRefreshToken({ id: user._id })
+
+				res.cookie('refreshToken', refreshToken, {
+					httpOnly: true,
+					path: '/user/refresh_token',
+					maxAge: 7 * 24 * 60 * 60 * 1000,
+				})
+				return res
+					.status(200)
+					.json({ message: 'Đăng nhập thành công', accessToken })
+			} else {
+				// Nếu chưa đăng nhập hoặc gì đó thì sẽ tự động đăng ký và tự đăng nhập luôn
+				const password = `${email}toanndz${name}ihnuey${process.env.CLOUD_API_SECRET}`
+				const avatar = picture.url
+				const passwordHash = await bcrypt.hash(password, 10)
+				const newUser = new User({
+					name,
+					email,
+					avatar,
+					password: passwordHash,
+				})
+				// Lưu vào database
+				await newUser.save()
+
+				const accessToken = createAccessToken({ id: newUser._id })
+				const refreshToken = createRefreshToken({ id: newUser._id })
+
+				res.cookie('refreshToken', refreshToken, {
+					httpOnly: true,
+					path: '/user/refresh_token',
+					maxAge: 7 * 24 * 60 * 60 * 1000,
+				})
+				return res
+					.status(200)
+					.json({ message: 'Đăng nhập thành công', accessToken })
+			}
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
@@ -112,7 +175,7 @@ const userController = {
 			if (!user)
 				return res.status(400).json({ message: 'Tài khoản không tồn tại' })
 
-			res.status(200).json({ user })
+			return res.status(200).json({ user })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
@@ -131,7 +194,7 @@ const userController = {
 }
 
 const createAccessToken = (user) => {
-	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' })
+	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '11m' })
 }
 
 const createRefreshToken = (user) => {

@@ -15,7 +15,7 @@ function uploadCloudinary(file) {
 				if (error) return reject(error)
 				return resolve({
 					public_id: results.public_id,
-					secure_url: results.secure_url,
+					url: results.secure_url,
 				})
 			}
 		)
@@ -26,7 +26,7 @@ function removeCloudinary(public_id) {
 	return new Promise((resolve, reject) => {
 		cloudinary.v2.api.delete_resources(public_id, (error) => {
 			if (error) return reject(error)
-			return resolve(true)
+			return resolve('Xóa ảnh thành công')
 		})
 	})
 }

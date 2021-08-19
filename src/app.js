@@ -5,13 +5,15 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const fileUpload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
-
 // Route
 const route = require('./routes')
 
 // Connect Database
 const { connectDB } = require('./config/db')
+
 connectDB()
+
+// config facebook login
 
 // Config App
 const app = express()
