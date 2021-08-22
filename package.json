@@ -27,6 +27,7 @@
     "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.13",
+    "mongoose-delete": "^0.5.3",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {

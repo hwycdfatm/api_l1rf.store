@@ -2,7 +2,6 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const mongoose = require('mongoose')
 const fileUpload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
 // Route
@@ -12,8 +11,6 @@ const route = require('./routes')
 const { connectDB } = require('./config/db')
 
 connectDB()
-
-// config facebook login
 
 // Config App
 const app = express()

@@ -138,7 +138,7 @@ const productController = {
 	deleteProduct: async (req, res) => {
 		try {
 			const id = req.params.id
-			const product = await Product.findByIdAndRemove(id)
+			const product = await Product.deleteById(id)
 			if (!product)
 				return res
 					.status(400)

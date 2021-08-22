@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 
+const mongooseDelete = require('mongoose-delete')
+
 const productSchema = mongoose.Schema(
 	{
 		title: {
@@ -15,7 +17,7 @@ const productSchema = mongoose.Schema(
 			default: 'Một sản phẩm tuyệt vời đến từ vị trí của Shop :3',
 		},
 		images: {
-			type: Object,
+			type: Array,
 			required: true,
 		},
 		category: {
@@ -36,10 +38,19 @@ const productSchema = mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		sold: {
+			type: Number,
+			default: 0,
+		},
+		size: {
+			type: Array,
+			required: true,
+		},
 	},
 	{
 		timestamps: true,
 	}
 )
+productSchema.plugin(mongooseDelete, { overrideMethods: 'all' })
 
 module.exports = mongoose.model('Product', productSchema)
