@@ -19,5 +19,7 @@ router.get('/refresh_token', userController.refreshToken)
 router.get('/info', auth, userController.info)
 // Giỏ hàng
 router.patch('/addcart', auth, userController.addCart)
+// Các đơn hàng
+router.patch('/order', auth, userController.order)
 
 module.exports = router

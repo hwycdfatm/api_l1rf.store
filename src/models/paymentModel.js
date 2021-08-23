@@ -2,6 +2,10 @@ const mongoose = require('mongoose')
 
 const paymentSchema = mongoose.Schema(
 	{
+		user_ID: {
+			type: String,
+			required: true,
+		},
 		name: {
 			type: String,
 			required: true,

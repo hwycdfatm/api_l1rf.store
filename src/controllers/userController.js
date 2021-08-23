@@ -1,5 +1,7 @@
 const User = require('../models/userModel')
 
+const Payment = require('../models/paymentModel')
+
 const bcrypt = require('bcrypt')
 
 const jwt = require('jsonwebtoken')
@@ -187,6 +189,14 @@ const userController = {
 				return res.status(404).json({ message: 'Tài khoản không tồn tại' })
 			await User.findOneAndUpdate({ _id: req.user.id }, { cart: req.body.cart })
 			return res.status(200).json({ message: 'Thêm vào giỏ hàng thành công' })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
+	order: async (req, res) => {
+		try {
+			const order = await Payment.find({ userID: req.params.userID })
+			if (order) return res.status(200).json({ order })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}

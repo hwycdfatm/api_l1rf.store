@@ -17,6 +17,21 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+	// Admin route
+	getProductById: async (req, res) => {
+		try {
+			const product = await Product.findOne({ _id: req.params.id })
+
+			if (!product)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không tìm thấy sản phẩm' })
+
+			res.status(200).json({ status: 'Success', data: product })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
 
 	// Lấy các sản phẩm thuộc nhóm danh mục nào
 	// [GET] /api/product?category=????
