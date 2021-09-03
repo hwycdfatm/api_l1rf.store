@@ -1,6 +1,16 @@
 const Product = require('../models/productModel')
 
 const productController = {
+	searchProduct: async (req, res) => {
+		try {
+			const query = req.query.search
+
+			return res.status(200).json({ search: query })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
+
 	// lấy sản phẩm với slug
 	// [GET] /api/product/:slug
 	getProduct: async (req, res) => {
@@ -17,7 +27,7 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-	// Admin route
+
 	getProductById: async (req, res) => {
 		try {
 			const product = await Product.findOne({ _id: req.params.id })
@@ -33,7 +43,38 @@ const productController = {
 		}
 	},
 
-	// Lấy các sản phẩm thuộc nhóm danh mục nào
+	getProductDeleted: async (req, res) => {
+		try {
+			// Filter by category
+			const category = req.query.category
+
+			// Pagination
+			const _limit = parseInt(req.query._limit) || 9
+			const _page = parseInt(req.query._page) || 1
+			const _skip = (_page - 1) * _limit
+
+			const sort = req.query.sort || '-createdAt'
+
+			const products = await Product.findDeleted(category ? { category } : {})
+				.limit(_limit)
+				.skip(_skip)
+				.sort(sort)
+
+			const _total_Product = await Product.countDocumentsDeleted(
+				category ? { category } : {}
+			)
+			const _total_Page = Math.ceil(_total_Product / _limit)
+
+			return res.status(200).json({
+				status: 'Success',
+				pagination: { _page, _total_Page, _total_Product },
+				data: products,
+			})
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
+
 	// [GET] /api/product?category=????
 	getProducts: async (req, res) => {
 		try {
@@ -58,7 +99,7 @@ const productController = {
 			const _total_Page = Math.ceil(_total_Product / _limit)
 
 			return res.status(200).json({
-				status: 'success',
+				status: 'Success',
 				pagination: { _page, _total_Page, _total_Product },
 				data: products,
 			})
@@ -148,12 +189,45 @@ const productController = {
 		}
 	},
 
+	// restore
+	restoreProduct: async (req, res) => {
+		try {
+			const _id = req.params.id
+			const result = await Product.restore({ _id })
+
+			if (!result)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Khôi phục sản phẩm thành công' })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
 	// Xóa sản phẩm
 	// [DELETE] /api/product/:id
 	deleteProduct: async (req, res) => {
 		try {
 			const id = req.params.id
 			const product = await Product.deleteById(id)
+			if (!product)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Xóa thành công' })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
+	deleteProductDeleted: async (req, res) => {
+		try {
+			const id = req.params.id
+
+			const product = await Product.deleteOne({ _id: id })
 			if (!product)
 				return res
 					.status(400)

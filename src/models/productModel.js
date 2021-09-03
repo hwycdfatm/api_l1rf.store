@@ -51,6 +51,9 @@ const productSchema = mongoose.Schema(
 		timestamps: true,
 	}
 )
-productSchema.plugin(mongooseDelete, { overrideMethods: 'all' })
+productSchema.plugin(mongooseDelete, {
+	overrideMethods: 'all',
+	deletedAt: true,
+})
 
 module.exports = mongoose.model('Product', productSchema)

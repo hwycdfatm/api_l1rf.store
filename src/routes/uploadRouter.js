@@ -41,8 +41,10 @@ router.post('/upload', auth, authAdmin, async (req, res) => {
 		if (files.length > 1) {
 			for (let file of files) {
 				const check = checkFile(file)
-				if (!check.status)
+				if (!check.status) {
+					fs.unlinkSync(file.tempFilePath)
 					return res.status(400).json({ status: 'Lỗi', message: check.message })
+				}
 				const temp = await uploadCloudinary(file)
 				fs.unlinkSync(file.tempFilePath)
 				images.push(temp)
@@ -50,8 +52,10 @@ router.post('/upload', auth, authAdmin, async (req, res) => {
 			return res.status(200).json({ images })
 		}
 		const check = checkFile(files)
-		if (!check.status)
+		if (!check.status) {
+			fs.unlinkSync(file.tempFilePath)
 			return res.status(400).json({ status: 'Lỗi', message: check.message })
+		}
 		const tempImage = await uploadCloudinary(files)
 		fs.unlinkSync(files.tempFilePath)
 
@@ -119,8 +123,9 @@ router.post('/destroy', auth, authAdmin, async (req, res) => {
 
 		const check = await removeCloudinary(ids)
 
-		if (check === 'Xóa ảnh thành công')
-			return res.status(200).json({ message: check })
+		if (check.result === 'not found')
+			return res.status(500).json({ message: 'Có lỗi xảy ra' })
+		return res.status(200).json({ message: 'Xóa ảnh thành công' })
 	} catch (error) {
 		return res.status(500).json({ message: error.message })
 	}

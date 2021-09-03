@@ -20,6 +20,7 @@ const PaymentController = {
 	// Tạo mới hóa đơn
 	creatPayment: async (req, res) => {
 		try {
+			const { order, user, total } = req.body
 			return res.status(200).json('Hello')
 		} catch (error) {
 			return res.status(500).json({ message: error.message })

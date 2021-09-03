@@ -30,6 +30,10 @@ const paymentSchema = mongoose.Schema(
 			type: Number,
 			default: 1,
 		},
+		method: {
+			type: String,
+			required: true,
+		},
 	},
 	{
 		timestamps: true,
