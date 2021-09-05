@@ -1,134 +1,43 @@
 const router = require('express').Router()
-const fs = require('fs')
-
-const {
-	uploadCloudinary,
-	removeCloudinary,
-} = require('../helper/cloudinaryHelper')
-const auth = require('../middlewares/auth')
+const uploadController = require('../controllers/uploadController')
 const authAdmin = require('../middlewares/authAdmin')
+const auth = require('../middlewares/auth')
+const multer = require('multer')
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+		cb(null, './uploads')
+	},
+	filename: (req, file, cb) => {
+		cb(null, Date.now().toString() + file.originalname)
+	},
+})
 
-// middleware handle check file image
-function checkFile(file) {
-	if (file.size > 1024 * 1024 * 1024) {
-		fs.unlinkSync(file.tempFilePath)
-		return {
-			status: false,
-			message: 'Kích thước file quá lớn (<3MB)',
+const uploadImage = (req, res, next) => {
+	const maxSize = 1024 * 1024 * 3 // images max size is 3 MB
+	const upload = multer({
+		storage,
+		limits: { fileSize: maxSize },
+		fileFilter: (req, file, cb) => {
+			if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpeg') {
+				return cb(null, false)
+			}
+			cb(null, true)
+		},
+	}).array('images', 5)
+	upload(req, res, function (err) {
+		if (err) {
+			return res.status(400).json({
+				message:
+					'Có lỗi xảy ra, định dạng ảnh không hợp lệ hoặc kích thước ảnh quá lớn (>3MB)',
+			})
 		}
-	}
-	if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpeg') {
-		fs.unlinkSync(file.tempFilePath)
-		return {
-			status: false,
-			message: 'Định dạng hình ảnh không hợp lệ',
-		}
-	}
-	return {
-		status: true,
-		message: 'Chấp nhận',
-	}
+		next()
+	})
 }
 
-// [POST] /api/upload == body is object or 1 file
+router.post('/upload', uploadImage, uploadController.upload)
 
-router.post('/upload', auth, authAdmin, async (req, res) => {
-	try {
-		const images = []
-		if (!req.files || Object.keys(req.files).length === 0)
-			return res.status(400).json({ message: 'Vui lòng chọn hình ảnh' })
-		const files = req.files.file
-		if (files.length > 1) {
-			for (let file of files) {
-				const check = checkFile(file)
-				if (!check.status) {
-					fs.unlinkSync(file.tempFilePath)
-					return res.status(400).json({ status: 'Lỗi', message: check.message })
-				}
-				const temp = await uploadCloudinary(file)
-				fs.unlinkSync(file.tempFilePath)
-				images.push(temp)
-			}
-			return res.status(200).json({ images })
-		}
-		const check = checkFile(files)
-		if (!check.status) {
-			fs.unlinkSync(file.tempFilePath)
-			return res.status(400).json({ status: 'Lỗi', message: check.message })
-		}
-		const tempImage = await uploadCloudinary(files)
-		fs.unlinkSync(files.tempFilePath)
-
-		if (tempImage)
-			return res.status(200).json({
-				images: [
-					{
-						public_id: tempImage.public_id,
-						url: tempImage.url,
-					},
-				],
-			})
-	} catch (error) {
-		return res.status(500).json({ message: error.message })
-	}
-})
-
-//--------------------------------------------------- handle upload multiple images --------------------
-// router.post('/upload-images', auth, authAdmin, (req, res) => {
-// 	try {
-// 		if (!req.files || Object.keys(req.files).length === 0)
-// 			return res.status(400).json({ message: 'Vui lòng chọn hình ảnh' })
-
-// 		const file = req.files.file
-// 		if (file.size > 1024 * 1024 * 1024) {
-// 			removeTempFile(file.tempFilePath)
-// 			return res
-// 				.status(400)
-// 				.json({ message: 'Kích thước hình ảnh quá lớn (3Mb)' })
-// 		}
-
-// 		if (file.mimetype !== 'image/png' && file.mimetype !== 'image/jpeg') {
-// 			removeTempFile(file.tempFilePath)
-// 			return res
-// 				.status(400)
-// 				.json({ message: 'Định dạng hình ảnh không hợp lệ' })
-// 		}
-
-// 		cloudinary.v2.uploader.upload(
-// 			file.tempFilePath,
-// 			{ folder: process.env.FOLDER_NAME },
-// 			async (error, results) => {
-// 				if (error) throw error
-// 				console.log(file.tempFilePath)
-// 				removeTempFile(file.tempFilePath)
-// 				return res
-// 					.status(200)
-// 					.json({ public_id: results.public_id, url: results.secure_url })
-// 			}
-// 		)
-// 	} catch (error) {
-// 		return res.status(500).json({ message: error.message })
-// 	}
-// })
-
-// [POST] /api/destroy === body is array
-
-router.post('/destroy', auth, authAdmin, async (req, res) => {
-	try {
-		const { public_id } = req.body
-
-		if (!public_id || public_id.length === 0)
-			return res.status(400).json({ message: 'Không có ảnh nào để mà xóa' })
-		const ids = [...public_id]
-
-		const check = await removeCloudinary(ids)
-
-		if (check.result === 'not found')
-			return res.status(500).json({ message: 'Có lỗi xảy ra' })
-		return res.status(200).json({ message: 'Xóa ảnh thành công' })
-	} catch (error) {
-		return res.status(500).json({ message: error.message })
-	}
-})
+// [POST] body is array
+router.post('/destroy', uploadController.destroy)
 
 module.exports = router

@@ -2,7 +2,6 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const fileUpload = require('express-fileupload')
 const cookieParser = require('cookie-parser')
 // Route
 const route = require('./routes')
@@ -35,12 +34,8 @@ app.use(
 	})
 )
 
-app.use(
-	fileUpload({
-		useTemplate: true,
-		useTempFiles: true,
-	})
-)
+// config static route images
+app.use('/images', express.static('uploads'))
 
 // Route run
 route(app)

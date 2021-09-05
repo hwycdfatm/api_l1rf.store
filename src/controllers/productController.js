@@ -1,16 +1,5 @@
 const Product = require('../models/productModel')
-
 const productController = {
-	searchProduct: async (req, res) => {
-		try {
-			const query = req.query.search
-
-			return res.status(200).json({ search: query })
-		} catch (error) {
-			return res.status(500).json({ message: error.message })
-		}
-	},
-
 	// lấy sản phẩm với slug
 	// [GET] /api/product/:slug
 	getProduct: async (req, res) => {

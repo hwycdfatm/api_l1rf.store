@@ -18,16 +18,15 @@
   "homepage": "https://github.com/likeoneringfake/l1rf_fullstack#readme",
   "dependencies": {
     "bcrypt": "^5.0.1",
-    "cloudinary": "^1.26.2",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "express-fileupload": "^1.2.1",
     "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.13",
     "mongoose-delete": "^0.5.3",
+    "multer": "^1.4.3",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
