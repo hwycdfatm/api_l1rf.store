@@ -15,10 +15,14 @@ const userController = {
 
 			const user = await User.findOne({ email })
 			if (user)
-				return res.status(400).json({ message: 'Email đã được đăng ký.' })
+				return res
+					.status(400)
+					.json({ status: 'Failed', message: 'Email đã được đăng ký.' })
 
 			if (password.length < 6)
-				return res.status(400).json({ message: 'Mật khẩu tối thiểu 6 ký tự' })
+				return res
+					.status(400)
+					.json({ status: 'Failed', message: 'Mật khẩu tối thiểu 6 ký tự' })
 
 			// Hash Password
 			const passwordHash = await bcrypt.hash(password, 10)
@@ -42,7 +46,11 @@ const userController = {
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 			})
 
-			res.json({ message: 'Đăng ký thành công', accessToken })
+			res.json({
+				status: 'Success',
+				message: 'Đăng ký thành công',
+				accessToken,
+			})
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
@@ -74,11 +82,13 @@ const userController = {
 				path: '/api/user/refresh_token',
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 			})
-			return res
-				.status(200)
-				.json({ message: 'Đăng nhập thành công', accessToken })
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Đăng nhập thành công',
+				accessToken,
+			})
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 	loginWithFacebook: async (req, res) => {
@@ -187,8 +197,13 @@ const userController = {
 			const user = await User.findById(req.user.id)
 			if (!user)
 				return res.status(404).json({ message: 'Tài khoản không tồn tại' })
+
+			const { cart } = req.body
+
 			await User.findOneAndUpdate({ _id: req.user.id }, { cart: req.body.cart })
-			return res.status(200).json({ message: 'Thêm vào giỏ hàng thành công' })
+			return res
+				.status(200)
+				.json({ message: 'Thêm vào giỏ hàng thành công', cart })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}

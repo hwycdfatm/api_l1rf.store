@@ -35,9 +35,9 @@ const uploadImage = (req, res, next) => {
 	})
 }
 
-router.post('/upload', uploadImage, uploadController.upload)
+router.post('/upload', auth, authAdmin, uploadImage, uploadController.upload)
 
 // [POST] body is array
-router.post('/destroy', uploadController.destroy)
+router.post('/destroy', auth, authAdmin, uploadController.destroy)
 
 module.exports = router

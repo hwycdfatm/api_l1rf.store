@@ -8,7 +8,7 @@ function route(app) {
 	app.use('/api/category', categoryRouter)
 	app.use('/api/product', productRouter)
 	app.use('/api', uploadRouter)
-	app.use('/api', paymentRouter)
+	app.use('/api/payment', paymentRouter)
 }
 
 module.exports = route

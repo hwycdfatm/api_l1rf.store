@@ -17,21 +17,30 @@ const paymentSchema = mongoose.Schema(
 		paymentID: {
 			type: String,
 			required: true,
+			unique: true,
 		},
 		address: {
 			type: String,
 			required: true,
 		},
-		cart: {
+		order: {
 			type: Array,
 			required: true,
 		},
 		status: {
 			type: Number,
-			default: 1,
+			default: 1, // 1 là đặt hàng thành công, 2 là đã chuyển hàng, 3 là đã bán thành công
 		},
 		method: {
 			type: String,
+			required: true,
+		},
+		total: {
+			type: Number,
+			required: true,
+		},
+		quantity: {
+			type: Number,
 			required: true,
 		},
 	},
