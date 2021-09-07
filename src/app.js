@@ -24,15 +24,18 @@ app.use(
 	})
 )
 app.use(cookieParser())
+if (process.env.NODE_ENV !== 'production') {
+	app.use(morgan('combined'))
+}
 
-app.use(morgan('combined'))
+const corsOptions = {
+	//To allow requests from client
+	origin: ['https://l1rf-store.surge.sh', 'http://localhost:3000'],
+	credentials: true,
+	exposedHeaders: ['set-cookie'],
+}
 
-app.use(
-	cors({
-		// origin: process.env.CLIENT_URL,
-		// credentials: true,
-	})
-)
+app.use(cors(corsOptions))
 
 // config static route images
 app.use('/images', express.static('uploads'))
