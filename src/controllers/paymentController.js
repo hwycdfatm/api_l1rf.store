@@ -14,7 +14,7 @@ const PaymentController = {
 		try {
 			const { id } = req.user
 			const result = await Payment.find({ user_ID: id })
-			return res.status(200).json({ result, length: result.length })
+			return res.status(200).json({ order: result, length: result.length })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
@@ -32,21 +32,6 @@ const PaymentController = {
 					status: 'Failed',
 					message: 'Vui lòng cập nhật địa chỉ giao hàng trước',
 				})
-			const availableKeyObj = [
-				'description',
-				'content',
-				'sold',
-				'inStock',
-				'createdAt',
-				'deletedAt',
-				'deleted',
-				'updatedAt',
-			]
-			const orderTemp = []
-			for (item of order) {
-				availableKeyObj.forEach((key) => delete item[key])
-				orderTemp.push(item)
-			}
 
 			const { _id, address, email, name } = user
 			const paymentID = Math.floor(Math.random() * (Date.now() / 10000000))
@@ -56,7 +41,7 @@ const PaymentController = {
 				total,
 				address,
 				email,
-				order: orderTemp,
+				order,
 				status: paid,
 				quantity,
 				paymentID,

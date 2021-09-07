@@ -11,7 +11,7 @@ const fetch = require('node-fetch')
 const userController = {
 	register: async (req, res) => {
 		try {
-			const { name, email, password, address, avatar } = req.body
+			const { name, email, password, address, phone } = req.body
 
 			const user = await User.findOne({ email })
 			if (user)
@@ -30,6 +30,7 @@ const userController = {
 				name,
 				email,
 				address,
+				phone,
 				password: passwordHash,
 			})
 
@@ -199,8 +200,24 @@ const userController = {
 				return res.status(404).json({ message: 'Tài khoản không tồn tại' })
 
 			const { cart } = req.body
-
-			await User.findOneAndUpdate({ _id: req.user.id }, { cart: req.body.cart })
+			const removeKeyObj = [
+				'description',
+				'content',
+				'sold',
+				'inStock',
+				'createdAt',
+				'deletedAt',
+				'deleted',
+				'updatedAt',
+			]
+			const cartTemp = []
+			for (item of cart) {
+				removeKeyObj.forEach((key) => delete item[key])
+				cartTemp.push(item)
+			}
+			for (item of cart) {
+			}
+			await User.findOneAndUpdate({ _id: req.user.id }, { cart: cartTemp })
 			return res
 				.status(200)
 				.json({ message: 'Thêm vào giỏ hàng thành công', cart })
