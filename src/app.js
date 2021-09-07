@@ -1,6 +1,6 @@
 require('dotenv').config()
 const express = require('express')
-const morgan = require('morgan')
+// const morgan = require('morgan')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 // Route
@@ -25,7 +25,7 @@ app.use(
 )
 app.use(cookieParser())
 
-app.use(morgan('combined'))
+// app.use(morgan('combined'))
 
 app.use(
 	cors({
