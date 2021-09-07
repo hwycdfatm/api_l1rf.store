@@ -13,7 +13,7 @@ connectDB()
 
 // Config App
 const app = express()
-const port = 5000
+const port = process.env.PORT || 5000
 
 // Config modul
 app.use(express.json())
