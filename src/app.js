@@ -33,7 +33,6 @@ const corsOptions = {
 	//To allow requests from client
 	origin: ['https://l1rf-store.surge.sh', 'http://localhost:3000'],
 	credentials: true,
-	exposedHeaders: ['set-cookie'],
 }
 
 app.use(cors(corsOptions))
