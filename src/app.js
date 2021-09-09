@@ -34,7 +34,7 @@ const corsOptions = {
 	origin: [
 		'https://l1rf-store.surge.sh',
 		'http://localhost:3000',
-		'https://objective-mayer-ced09b.netlify.app/',
+		'https://objective-mayer-ced09b.netlify.app',
 	],
 	credentials: true,
 	exposedHeaders: ['set-cookie'],
