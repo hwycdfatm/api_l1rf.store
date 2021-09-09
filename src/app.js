@@ -1,6 +1,5 @@
 require('dotenv').config()
 const express = require('express')
-// const morgan = require('morgan')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 // Route
@@ -25,14 +24,16 @@ app.use(
 )
 app.use(cookieParser())
 
-// if (process.env.NODE_ENV !== 'production') {
-// 	app.use(morgan('combined'))
-// }
+if (process.env.NODE_ENV !== 'production') {
+	const morgan = require('morgan')
+	app.use(morgan('combined'))
+}
 
 const corsOptions = {
 	//To allow requests from client
 	origin: ['https://l1rf-store.surge.sh', 'http://localhost:3000'],
 	credentials: true,
+	exposedHeaders: ['set-cookie'],
 }
 
 app.use(cors(corsOptions))
