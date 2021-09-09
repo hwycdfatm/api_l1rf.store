@@ -31,7 +31,11 @@ if (process.env.NODE_ENV !== 'production') {
 
 const corsOptions = {
 	//To allow requests from client
-	origin: ['https://l1rf-store.surge.sh', 'http://localhost:3000'],
+	origin: [
+		'https://l1rf-store.surge.sh',
+		'http://localhost:3000',
+		'https://objective-mayer-ced09b.netlify.app/',
+	],
 	credentials: true,
 	exposedHeaders: ['set-cookie'],
 }
