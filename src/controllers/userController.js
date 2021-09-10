@@ -80,7 +80,7 @@ const userController = {
 
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
-				// path: '/api/user/refresh_token',
+				path: '/api/user/refresh_token',
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 			})
 
@@ -115,7 +115,7 @@ const userController = {
 
 				res.cookie('refreshToken', refreshToken, {
 					httpOnly: true,
-					// path: '/api/user/refresh_token',
+					path: '/api/user/refresh_token',
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 				})
 
