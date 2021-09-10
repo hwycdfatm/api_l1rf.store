@@ -80,9 +80,10 @@ const userController = {
 
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
-				path: '/api/user/refresh_token',
+				// path: '/api/user/refresh_token',
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 			})
+
 			return res.status(200).json({
 				status: 'Success',
 				message: 'Đăng nhập thành công',
@@ -114,9 +115,10 @@ const userController = {
 
 				res.cookie('refreshToken', refreshToken, {
 					httpOnly: true,
-					path: '/api/user/refresh_token',
+					// path: '/api/user/refresh_token',
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 				})
+
 				return res
 					.status(200)
 					.json({ message: 'Đăng nhập thành công', accessToken })
@@ -142,6 +144,7 @@ const userController = {
 					path: '/api/user/refresh_token',
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 				})
+
 				return res
 					.status(200)
 					.json({ message: 'Đăng nhập thành công', accessToken })
