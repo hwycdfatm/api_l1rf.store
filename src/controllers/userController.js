@@ -45,6 +45,8 @@ const userController = {
 				httpOnly: true,
 				path: '/api/user/refresh_token',
 				maxAge: 7 * 24 * 60 * 60 * 1000,
+				sameSite: 'none',
+				secure: true,
 			})
 
 			res.json({
@@ -82,6 +84,8 @@ const userController = {
 				httpOnly: true,
 				path: '/api/user/refresh_token',
 				maxAge: 7 * 24 * 60 * 60 * 1000,
+				sameSite: 'none',
+				secure: true,
 			})
 
 			return res.status(200).json({
@@ -117,6 +121,8 @@ const userController = {
 					httpOnly: true,
 					path: '/api/user/refresh_token',
 					maxAge: 7 * 24 * 60 * 60 * 1000,
+					sameSite: 'none',
+					secure: true,
 				})
 
 				return res
@@ -143,6 +149,8 @@ const userController = {
 					httpOnly: true,
 					path: '/api/user/refresh_token',
 					maxAge: 7 * 24 * 60 * 60 * 1000,
+					sameSite: 'none',
+					secure: true,
 				})
 
 				return res
@@ -239,7 +247,7 @@ const userController = {
 }
 
 const createAccessToken = (user) => {
-	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '11m' })
+	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
 }
 
 const createRefreshToken = (user) => {
