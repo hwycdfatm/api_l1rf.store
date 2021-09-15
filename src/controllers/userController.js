@@ -61,7 +61,7 @@ const userController = {
 	login: async (req, res) => {
 		try {
 			const { email, password } = req.body
-
+			const domain = req.headers.host
 			const user = await User.findOne({ email })
 
 			if (!user)
@@ -91,6 +91,7 @@ const userController = {
 			return res.status(200).json({
 				status: 'Success',
 				message: 'Đăng nhập thành công',
+
 				accessToken,
 			})
 		} catch (error) {
@@ -125,9 +126,11 @@ const userController = {
 					secure: true,
 				})
 
-				return res
-					.status(200)
-					.json({ message: 'Đăng nhập thành công', accessToken })
+				return res.status(200).json({
+					status: 'Success',
+					message: 'Đăng nhập thành công',
+					accessToken,
+				})
 			} else {
 				// Nếu chưa đăng nhập hoặc gì đó thì sẽ tự động đăng ký và tự đăng nhập luôn
 				const password = `${email}toanndz${name}ihnuey${process.env.CLOUD_API_SECRET}`

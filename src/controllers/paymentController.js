@@ -4,7 +4,13 @@ const PaymentController = {
 	// lấy tất cả các hóa đơn
 	getAllPayments: async (req, res) => {
 		try {
-			return res.status(200).json('Hello')
+			const result = await Payment.find()
+			const total = result.reduce((pre, cur) => {
+				return pre + cur.total
+			}, 0)
+			return res
+				.status(200)
+				.json({ order: result, length: result.length, total })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
