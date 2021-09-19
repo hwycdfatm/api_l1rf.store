@@ -11,7 +11,7 @@ const uploadController = {
 			for (let file of files) {
 				images.push({
 					public_name: file.filename,
-					url: 'https://' + req.headers.host + '/images/' + file.filename,
+					url: `${req.protocol}://${req.headers.host}/images/${file.filename}`,
 				})
 			}
 

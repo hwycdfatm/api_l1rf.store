@@ -4,6 +4,7 @@ const userController = require('../controllers/userController')
 
 // Auth Middleware
 const auth = require('../middlewares/auth')
+const authAdmin = require('../middlewares/authAdmin')
 
 // Đăng ký
 router.post('/register', userController.register)
@@ -21,5 +22,8 @@ router.get('/info', auth, userController.info)
 router.patch('/addcart', auth, userController.addCart)
 // Các đơn hàng
 router.patch('/order', auth, userController.order)
+
+// admin get all user
+router.get('/all', auth, authAdmin, userController.getAllUsers)
 
 module.exports = router

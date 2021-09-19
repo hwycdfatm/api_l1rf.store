@@ -232,9 +232,11 @@ const userController = {
 			for (item of cart) {
 			}
 			await User.findOneAndUpdate({ _id: req.user.id }, { cart: cartTemp })
-			return res
-				.status(200)
-				.json({ message: 'Thêm vào giỏ hàng thành công', cart })
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Thêm vào giỏ hàng thành công',
+				cart,
+			})
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
@@ -243,6 +245,18 @@ const userController = {
 		try {
 			const order = await Payment.find({ userID: req.params.userID })
 			if (order) return res.status(200).json({ order })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
+	getAllUsers: async (req, res) => {
+		try {
+			const allUsers = await User.find({}).select('-password')
+			if (allUsers.length == 0)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không có user nào' })
+			return res.status(200).json({ users: allUsers })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
