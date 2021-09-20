@@ -91,7 +91,6 @@ const userController = {
 			return res.status(200).json({
 				status: 'Success',
 				message: 'Đăng nhập thành công',
-
 				accessToken,
 			})
 		} catch (error) {
@@ -264,11 +263,11 @@ const userController = {
 }
 
 const createAccessToken = (user) => {
-	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
+	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '11m' })
 }
 
 const createRefreshToken = (user) => {
-	return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '1d' })
+	return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 }
 
 module.exports = userController

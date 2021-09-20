@@ -39,12 +39,13 @@ const PaymentController = {
 					message: 'Vui lòng cập nhật địa chỉ giao hàng trước',
 				})
 
-			const { _id, address, email, name } = user
+			const { _id, address, email, name, phone } = user
 			const paymentID = Math.floor(Math.random() * (Date.now() / 10000000))
 			const newPayment = new Payment({
 				user_ID: _id,
 				name,
 				total,
+				phone,
 				address,
 				email,
 				order,

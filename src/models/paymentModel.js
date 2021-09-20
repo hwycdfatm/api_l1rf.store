@@ -14,6 +14,10 @@ const paymentSchema = mongoose.Schema(
 			type: String,
 			required: true,
 		},
+		phone: {
+			type: String,
+			required: true,
+		},
 		paymentID: {
 			type: String,
 			required: true,
