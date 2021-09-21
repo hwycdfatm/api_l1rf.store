@@ -184,7 +184,7 @@ const userController = {
 				(error, user) => {
 					if (error)
 						return res
-							.status(400)
+							.status(419)
 							.json({ message: 'Vui lòng đăng nhập hoặc đăng ký' })
 					const accessToken = createAccessToken({ id: user.id })
 					res.json({ user, accessToken })
