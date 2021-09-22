@@ -65,7 +65,17 @@ const PaymentController = {
 	// Cập nhật hóa đơn
 	updatePayment: async (req, res) => {
 		try {
-			return res.status(200).json('Hello')
+			const _id = req.params.id
+			const { status } = req.body
+			if (!_id)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không có đơn hàng nào được chọn' })
+			await Payment.updateOne({ _id }, { status })
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Cập nhật trạng thái đơn hàng thành công',
+			})
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
