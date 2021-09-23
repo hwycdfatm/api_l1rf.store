@@ -18,12 +18,14 @@ router.get('/logout', userController.logout)
 router.get('/refresh_token', userController.refreshToken)
 // Thông tin user
 router.get('/info', auth, userController.info)
+// Cập nhật thông tin user
+router.put('/info', auth, userController.updateProfile)
 // Giỏ hàng
 router.patch('/addcart', auth, userController.addCart)
-// Các đơn hàng
-router.patch('/order', auth, userController.order)
 
 // admin get all user
 router.get('/all', auth, authAdmin, userController.getAllUsers)
+// admin route cập nhật khóa tài khoản hoặc thay đổi quyền cho user
+router.patch('/:id', auth, authAdmin, userController.updateByAdmin)
 
 module.exports = router

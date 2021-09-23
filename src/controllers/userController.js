@@ -61,20 +61,25 @@ const userController = {
 	login: async (req, res) => {
 		try {
 			const { email, password } = req.body
-			const domain = req.headers.host
 			const user = await User.findOne({ email })
 
 			if (!user)
 				return res
 					.status(400)
-					.json({ message: 'Thông tin đăng nhập không hợp lệ' })
+					.json({ status: 'Fail', message: 'Thông tin đăng nhập không hợp lệ' })
 
 			const mathPassword = await bcrypt.compare(password, user.password)
 
 			if (!mathPassword)
 				return res
 					.status(400)
-					.json({ message: 'Thông tin đăng nhập không hợp lệ' })
+					.json({ status: 'Fail', message: 'Thông tin đăng nhập không hợp lệ' })
+
+			if (!user.activate)
+				return res.status(400).json({
+					status: 'Fail',
+					message: 'Tài khoản bạn đã bị khóa',
+				})
 
 			// Tạo ACCESS TOKEN
 			const accessToken = createAccessToken({ id: user._id })
@@ -155,20 +160,24 @@ const userController = {
 					secure: true,
 				})
 
-				return res
-					.status(200)
-					.json({ message: 'Đăng nhập thành công', accessToken })
+				return res.status(200).json({
+					status: 'Success',
+					message: 'Đăng nhập thành công',
+					accessToken,
+				})
 			}
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 	logout: async (req, res) => {
 		try {
 			res.clearCookie('refreshToken', { path: '/api/user/refresh_token' })
-			return res.status(200).json({ message: 'Đăng xuất thành công!' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Đăng xuất thành công!' })
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 	refreshToken: (req, res) => {
@@ -177,21 +186,22 @@ const userController = {
 			if (!refreshToken)
 				return res
 					.status(400)
-					.json({ message: 'Vui lòng đăng nhập hoặc đăng ký' })
+					.json({ status: 'Fail', message: 'Vui lòng đăng nhập hoặc đăng ký' })
 			jwt.verify(
 				refreshToken,
 				process.env.REFRESH_TOKEN_SECRET,
 				(error, user) => {
 					if (error)
-						return res
-							.status(419)
-							.json({ message: 'Vui lòng đăng nhập hoặc đăng ký' })
+						return res.status(419).json({
+							status: 'Fail',
+							message: 'Vui lòng đăng nhập hoặc đăng ký',
+						})
 					const accessToken = createAccessToken({ id: user.id })
 					res.json({ user, accessToken })
 				}
 			)
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 	info: async (req, res) => {
@@ -199,18 +209,44 @@ const userController = {
 			const user = await User.findById(req.user.id).select('-password')
 
 			if (!user)
-				return res.status(400).json({ message: 'Tài khoản không tồn tại' })
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Tài khoản không tồn tại' })
 
 			return res.status(200).json({ user })
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+	updateProfile: async (req, res) => {
+		try {
+			const { name, password, address, phone } = req.body
+
+			const resultUpdateUser = await User.findByIdAndUpdate(req.user.id, {
+				name,
+				password,
+				address,
+				phone,
+			})
+			if (!resultUpdateUser)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra rồi' })
+
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Cập nhật thông tin thành công' })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 	addCart: async (req, res) => {
 		try {
 			const user = await User.findById(req.user.id)
 			if (!user)
-				return res.status(404).json({ message: 'Tài khoản không tồn tại' })
+				return res
+					.status(404)
+					.json({ status: 'Fail', message: 'Tài khoản không tồn tại' })
 
 			const { cart } = req.body
 			const removeKeyObj = [
@@ -237,15 +273,28 @@ const userController = {
 				cart,
 			})
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-	order: async (req, res) => {
+
+	// Admin route
+	updateByAdmin: async (req, res) => {
 		try {
-			const order = await Payment.find({ userID: req.params.userID })
-			if (order) return res.status(200).json({ order })
+			const _id = req.params.id
+			const { role, activate } = req.body
+			console.log({ role, activate })
+			const result = await User.findByIdAndUpdate(_id, { role, activate })
+
+			if (!result)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Cập nhật thông tin thành công',
+			})
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 	getAllUsers: async (req, res) => {
@@ -257,7 +306,7 @@ const userController = {
 					.json({ status: 'Fail', message: 'Không có user nào' })
 			return res.status(200).json({ users: allUsers })
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 }

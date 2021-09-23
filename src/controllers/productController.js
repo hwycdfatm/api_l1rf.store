@@ -156,7 +156,6 @@ const productController = {
 				inStock,
 			} = req.body
 
-			// Hiện tại đang có lỗi với trường hợp này và đợi xử lý sau
 			const product = await Product.findByIdAndUpdate(id, {
 				title,
 				description,
