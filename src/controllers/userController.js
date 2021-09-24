@@ -299,7 +299,12 @@ const userController = {
 	},
 	getAllUsers: async (req, res) => {
 		try {
-			const allUsers = await User.find({}).select('-password')
+			const sort = req.query.sort || '-createdAt'
+			const _limit = parseInt(req.query._limit) || 100
+			const allUsers = await User.find()
+				.sort(sort)
+				.limit(_limit)
+				.select('-password')
 			if (allUsers.length == 0)
 				return res
 					.status(400)

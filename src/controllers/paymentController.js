@@ -4,7 +4,7 @@ const PaymentController = {
 	// lấy tất cả các hóa đơn
 	getAllPayments: async (req, res) => {
 		try {
-			const result = await Payment.find()
+			const result = await Payment.find().sort('-createdAt')
 			const total = result.reduce((pre, cur) => {
 				return pre + cur.total
 			}, 0)
