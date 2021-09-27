@@ -77,12 +77,27 @@ const productController = {
 			const _page = parseInt(req.query._page) || 1
 			const _skip = (_page - 1) * _limit
 
+			const search = req.query.q
 			const sort = req.query.sort || '-createdAt'
-
-			const products = await Product.find(category ? { category } : {})
-				.limit(_limit)
-				.skip(_skip)
-				.sort(sort)
+			let products = []
+			if (search) {
+				const searchQuery = search
+					.toLowerCase()
+					.normalize('NFD')
+					.replace(/[\u0300-\u036f]/g, '')
+					.replace(/[đĐ]/g, 'd')
+					.replace(/\s/g, '-')
+					.trim()
+				console.log(searchQuery)
+				products = await Product.find({
+					slug: { $regex: new RegExp(searchQuery, 'i') },
+				})
+			} else {
+				products = await Product.find(category ? { category } : {})
+					.limit(_limit)
+					.skip(_skip)
+					.sort(sort)
+			}
 
 			const _total_Product = await Product.countDocuments(
 				category ? { category } : {}
@@ -103,16 +118,10 @@ const productController = {
 	// [POST] /api/product/
 	createProduct: async (req, res) => {
 		try {
-			const {
-				title,
-				description,
-				content,
-				images,
-				category,
-				slug,
-				price,
-				inStock,
-			} = req.body
+			const { title, description, content, images, category, price, inStock } =
+				req.body
+
+			const slug = string_to_slug(title)
 
 			const product = await Product.findOne({ slug })
 
@@ -238,6 +247,24 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+}
+
+function string_to_slug(str) {
+	str = str.toLowerCase()
+
+	str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+	str = str.replace(/[đĐ]/g, 'd')
+
+	str = str.replace(/([^0-9a-z-\s])/g, '')
+
+	str = str.replace(/(\s+)/g, '-')
+
+	str = str.replace(/-+/g, '-')
+
+	str = str.replace(/^-+|-+$/g, '')
+
+	return str
 }
 
 module.exports = productController
