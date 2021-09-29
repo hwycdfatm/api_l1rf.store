@@ -81,17 +81,14 @@ const productController = {
 			const sort = req.query.sort || '-createdAt'
 			let products = []
 			if (search) {
-				const searchQuery = search
-					.toLowerCase()
-					.normalize('NFD')
-					.replace(/[\u0300-\u036f]/g, '')
-					.replace(/[đĐ]/g, 'd')
-					.replace(/\s/g, '-')
-					.trim()
+				const searchQuery = string_to_slug(search)
 				console.log(searchQuery)
 				products = await Product.find({
 					slug: { $regex: new RegExp(searchQuery, 'i') },
 				})
+					.limit(_limit)
+					.skip(_skip)
+					.sort(sort)
 			} else {
 				products = await Product.find(category ? { category } : {})
 					.limit(_limit)
