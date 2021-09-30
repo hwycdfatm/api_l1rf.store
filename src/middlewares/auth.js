@@ -6,13 +6,13 @@ const auth = (req, res, next) => {
 		if (!token)
 			return res
 				.status(400)
-				.json({ status: 'Fail', message: 'Bạn không có quyền truy cập !' })
+				.json({ status: 'notauth', message: 'Bạn không có quyền truy cập !' })
 
 		jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (error, user) => {
 			if (error)
 				return res
 					.status(419)
-					.json({ status: 'Fail', message: 'Bạn đã hết phiên đang nhập' })
+					.json({ status: 'exptoken', message: 'Bạn đã hết phiên đang nhập' })
 			const userFromDB = await User.findOne({
 				_id: user.id,
 			})

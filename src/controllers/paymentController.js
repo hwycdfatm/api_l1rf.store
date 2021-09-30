@@ -20,7 +20,9 @@ const PaymentController = {
 		try {
 			const { id } = req.user
 			const result = await Payment.find({ user_ID: id })
-			return res.status(200).json({ order: result, length: result.length })
+			return res
+				.status(200)
+				.json({ status: 'Success', order: result, length: result.length })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
