@@ -1,4 +1,4 @@
-const { unlink } = require('fs/promises')
+const { unlink } = require('fs').promises
 
 const uploadController = {
 	upload: async (req, res) => {
@@ -20,6 +20,7 @@ const uploadController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+
 	destroy: async (req, res) => {
 		try {
 			const { public_name } = req.body

@@ -22,10 +22,17 @@ router.get('/info', auth, userController.info)
 router.put('/info', auth, userController.updateProfile)
 // Giỏ hàng
 router.patch('/addcart', auth, userController.addCart)
-
 // admin get all user
 router.get('/all', auth, authAdmin, userController.getAllUsers)
+// admin get all user deleted
+router.get('/all-deleted', auth, authAdmin, userController.getAllUsersDeleted)
 // admin route cập nhật khóa tài khoản hoặc thay đổi quyền cho user
 router.patch('/:id', auth, authAdmin, userController.updateByAdmin)
+// admin khôi phục tài khoản
+router.patch('/:id/restore', auth, authAdmin, userController.restoreUser)
+// admin xóa mền tài khoản
+router.delete('/:id', auth, authAdmin, userController.deleteUser)
+// admin xóa thẳng cẳng thằng user nào ngu
+router.delete('/:id/force', auth, authAdmin, userController.deleteForceUser)
 
 module.exports = router

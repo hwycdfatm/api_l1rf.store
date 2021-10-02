@@ -8,13 +8,27 @@ const PaymentController = {
 			const total = result.reduce((pre, cur) => {
 				return pre + cur.total
 			}, 0)
-			return res
-				.status(200)
-				.json({ order: result, length: result.length, total })
+			return res.status(200).json({
+				status: 'Success',
+				order: result,
+				length: result.length,
+				total,
+			})
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+	getAllPaymentsDeleted: async (req, res) => {
+		try {
+			const result = await Payment.findDeleted().sort('-createdAt')
+			return res
+				.status(200)
+				.json({ status: 'Success', order: result, length: result.length })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
 	// Lây hóa đơn theo userID
 	getPayments: async (req, res) => {
 		try {
@@ -24,9 +38,10 @@ const PaymentController = {
 				.status(200)
 				.json({ status: 'Success', order: result, length: result.length })
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	// Tạo mới hóa đơn
 	creatPayment: async (req, res) => {
 		try {
@@ -61,9 +76,10 @@ const PaymentController = {
 				.status(200)
 				.json({ status: 'Success', message: 'Đặt hàng thành công' })
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	// Cập nhật hóa đơn
 	updatePayment: async (req, res) => {
 		try {
@@ -79,7 +95,66 @@ const PaymentController = {
 				message: 'Cập nhật trạng thái đơn hàng thành công',
 			})
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	deletePayment: async (req, res) => {
+		try {
+			const _id = req.params.id
+			if (!_id)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không có đơn hàng nào được chọn' })
+
+			const payment = await Payment.deleteById(_id)
+			if (!payment)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Xóa thành công' })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	deleteForcePayment: async (req, res) => {
+		try {
+			const _id = req.params.id
+			if (!_id)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không có đơn hàng nào được chọn' })
+
+			const payment = await Payment.deleteOne({ _id })
+			if (!payment)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Xóa thành công' })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	restorePayment: async (req, res) => {
+		try {
+			const _id = req.params.id
+			const result = await Payment.restore({ _id })
+
+			if (!result)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Khôi phục đơn hàng thành công' })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 }

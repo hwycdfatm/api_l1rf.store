@@ -1,7 +1,5 @@
 const User = require('../models/userModel')
 
-const Payment = require('../models/paymentModel')
-
 const bcrypt = require('bcrypt')
 
 const jwt = require('jsonwebtoken')
@@ -310,6 +308,88 @@ const userController = {
 					.status(400)
 					.json({ status: 'Fail', message: 'Không có user nào' })
 			return res.status(200).json({ users: allUsers })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	getAllUsersDeleted: async (req, res) => {
+		try {
+			const sort = req.query.sort || '-createdAt'
+			const _limit = parseInt(req.query._limit) || 100
+			const allUsers = await User.findDeleted()
+				.sort(sort)
+				.limit(_limit)
+				.select('-password')
+			if (allUsers.length == 0)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không có user nào' })
+			return res.status(200).json({ users: allUsers })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	restoreUser: async (req, res) => {
+		try {
+			const _id = req.params.id
+			if (!_id)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không có user nào được chọn' })
+
+			const user = await User.restore({ _id })
+			if (!user)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Khôi phục thành công' })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	deleteUser: async (req, res) => {
+		try {
+			const _id = req.params.id
+			if (!_id)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không có user nào được chọn' })
+
+			const user = await User.deleteById(_id)
+			if (!user)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Xóa thành công' })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	deleteForceUser: async (req, res) => {
+		try {
+			const _id = req.params.id
+			if (!_id)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Không có user nào được chọn' })
+
+			const user = await User.deleteOne({ _id })
+			if (!user)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Đã xóa vĩnh viễn user thành công',
+			})
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}

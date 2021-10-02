@@ -1,5 +1,5 @@
 const Product = require('../models/productModel')
-const { unlink } = require('fs/promises')
+const { unlink } = require('fs').promises
 
 const productController = {
 	// lấy sản phẩm với slug
@@ -238,7 +238,7 @@ const productController = {
 					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
 			return res.status(200).json({
 				status: 'Success',
-				message: 'Xóa thành công',
+				message: 'Đã xóa vĩnh viền user thành công',
 			})
 		} catch (error) {
 			return res.status(500).json({ message: error.message })

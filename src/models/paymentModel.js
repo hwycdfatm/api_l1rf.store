@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-
+const mongooseDelete = require('mongoose-delete')
 const paymentSchema = mongoose.Schema(
 	{
 		user_ID: {
@@ -52,5 +52,8 @@ const paymentSchema = mongoose.Schema(
 		timestamps: true,
 	}
 )
-
+paymentSchema.plugin(mongooseDelete, {
+	overrideMethods: 'all',
+	deletedAt: true,
+})
 module.exports = mongoose.model('Payment', paymentSchema)
