@@ -28,7 +28,8 @@
 		"mongoose": "^5.12.13",
 		"mongoose-delete": "^0.5.3",
 		"multer": "^1.4.3",
-		"node-fetch": "^2.6.1"
+		"node-fetch": "^2.6.1",
+		"nodemailer": "^6.6.5"
 	},
 	"devDependencies": {
 		"morgan": "^1.10.0",

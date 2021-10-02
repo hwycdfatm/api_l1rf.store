@@ -6,10 +6,19 @@ const jwt = require('jsonwebtoken')
 
 const fetch = require('node-fetch')
 
+const sendMail = require('../utils/sendMail')
+
 const userController = {
 	register: async (req, res) => {
 		try {
 			const { name, email, password, address, phone } = req.body
+
+			const checkEmail = validateEmail(email)
+
+			if (!checkEmail)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Email không hợp lệ' })
 
 			const user = await User.findOne({ email })
 			if (user)
@@ -56,6 +65,7 @@ const userController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+
 	login: async (req, res) => {
 		try {
 			const { email, password } = req.body
@@ -168,6 +178,7 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	logout: async (req, res) => {
 		try {
 			res.clearCookie('refreshToken', { path: '/api/user/refresh_token' })
@@ -178,6 +189,7 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	refreshToken: (req, res) => {
 		try {
 			const refreshToken = req.cookies.refreshToken
@@ -202,6 +214,7 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	info: async (req, res) => {
 		try {
 			const user = await User.findById(req.user.id).select('-password')
@@ -216,13 +229,13 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	updateProfile: async (req, res) => {
 		try {
-			const { name, password, address, phone } = req.body
+			const { name, address, phone } = req.body
 
 			const resultUpdateUser = await User.findByIdAndUpdate(req.user.id, {
 				name,
-				password,
 				address,
 				phone,
 			})
@@ -238,6 +251,7 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	addCart: async (req, res) => {
 		try {
 			const user = await User.findById(req.user.id)
@@ -275,6 +289,53 @@ const userController = {
 		}
 	},
 
+	forgetPassword: async (req, res) => {
+		try {
+			const { email } = req.body
+			const user = await User.findOne({ email })
+			if (!user)
+				return res.status(404).json({
+					status: 'Fail',
+					message: 'Email không được xử dụng bởi bất kì tài khoản nào',
+				})
+			const accessToken = createAccessToken({ id: user._id })
+
+			const url = `${process.env.CLIENT_URL}/user/reset/${accessToken}`
+
+			sendMail(email, url)
+
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Đã gửi email, vui lòng kiểm tra email của bạn !',
+			})
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	resetPassword: async (req, res) => {
+		try {
+			const { password } = req.body
+			const { id } = req.user
+			const passwordHash = await bcrypt.hash(password, 12)
+			const result = await Users.findOneAndUpdate(
+				{ _id: id },
+				{
+					password: passwordHash,
+				}
+			)
+			if (!result)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Mật khẩu đã được thay đổi thành công',
+			})
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
 	// Admin route
 	updateByAdmin: async (req, res) => {
 		try {
@@ -295,6 +356,7 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	getAllUsers: async (req, res) => {
 		try {
 			const sort = req.query.sort || '-createdAt'
@@ -394,6 +456,12 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+}
+
+const validateEmail = (email) => {
+	const regex =
+		/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+	return regex.test(String(email).toLowerCase())
 }
 
 const createAccessToken = (user) => {

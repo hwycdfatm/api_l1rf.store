@@ -10,6 +10,10 @@ const authAdmin = require('../middlewares/authAdmin')
 router.post('/register', userController.register)
 // Đăng nhập
 router.post('/login', userController.login)
+// Quên mật khẩu
+router.post('/forget', userController.forgetPassword)
+// Reset Passsword
+router.post('/reset-password', userController.resetPassword)
 // Đăng nhập với Facebook
 router.post('/loginwithfacebook', userController.loginWithFacebook)
 // Đăng xuất
