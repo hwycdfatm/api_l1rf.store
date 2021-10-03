@@ -301,8 +301,9 @@ const userController = {
 			const accessToken = createAccessToken({ id: user._id })
 
 			const url = `${process.env.CLIENT_URL}/user/reset/${accessToken}`
+			const name = user.name
 
-			sendMail(email, url)
+			sendMail(email, url, name)
 
 			return res.status(200).json({
 				status: 'Success',

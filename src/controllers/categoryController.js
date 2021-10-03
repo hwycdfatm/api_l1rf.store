@@ -4,11 +4,14 @@ const Category = require('../models/categoryModel')
 const categoryController = {
 	// lấy danh mục
 	// [GET] /api/category/
-	getCategorys: async (req, res) => {
+	getCategories: async (req, res) => {
 		try {
 			const categories = await Category.find()
-
-			res.status(200).json({ status: 'Success', data: categories })
+			if (!categories)
+				return res
+					.status(404)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra!' })
+			return res.status(200).json({ status: 'Success', data: categories })
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
 		}
@@ -57,7 +60,7 @@ const categoryController = {
 				.status(200)
 				.json({ status: 'Success', message: 'Cập nhật thành công' })
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 
@@ -75,7 +78,23 @@ const categoryController = {
 				.status(200)
 				.json({ status: 'Success', message: 'Xóa thành công' })
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	restoreCategory: async (req, res) => {
+		try {
+			const _id = req.params.id
+			const result = await Category.restore({ _id })
+			if (!result)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Khôi phục danh mục thành công' })
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 }
