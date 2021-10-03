@@ -50,7 +50,7 @@ const userController = {
 
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
-				path: '/api/user/refresh_token',
+				path: '/api_v1/user/refresh_token',
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 				sameSite: 'none',
 				secure: true,
@@ -95,7 +95,7 @@ const userController = {
 
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
-				path: '/api/user/refresh_token',
+				path: '/api_v1/user/refresh_token',
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 				sameSite: 'none',
 				secure: true,
@@ -132,7 +132,7 @@ const userController = {
 
 				res.cookie('refreshToken', refreshToken, {
 					httpOnly: true,
-					path: '/api/user/refresh_token',
+					path: '/api_v1/user/refresh_token',
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					sameSite: 'none',
 					secure: true,
@@ -162,7 +162,7 @@ const userController = {
 
 				res.cookie('refreshToken', refreshToken, {
 					httpOnly: true,
-					path: '/api/user/refresh_token',
+					path: '/api_v1/user/refresh_token',
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					sameSite: 'none',
 					secure: true,
@@ -181,7 +181,7 @@ const userController = {
 
 	logout: async (req, res) => {
 		try {
-			res.clearCookie('refreshToken', { path: '/api/user/refresh_token' })
+			res.clearCookie('refreshToken', { path: '/api_v1/user/refresh_token' })
 			return res
 				.status(200)
 				.json({ status: 'Success', message: 'Đăng xuất thành công!' })
