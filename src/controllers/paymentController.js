@@ -43,7 +43,7 @@ const PaymentController = {
 	},
 
 	// Tạo mới hóa đơn
-	creatPayment: async (req, res) => {
+	createPayment: async (req, res) => {
 		try {
 			const { order, user, total, method, paid, quantity } = req.body
 			if (order.length < 1)
