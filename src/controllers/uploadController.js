@@ -11,30 +11,28 @@ const uploadController = {
 			for (let file of files) {
 				images.push({
 					public_name: file.filename,
-					url: `https://${req.headers.host}/images/${file.filename}`,
+					url: `http://${req.headers.host}/images/${file.filename}`,
 				})
 			}
 
 			return res.status(200).json({ images })
 		} catch (error) {
-			return res.status(500).json({ message: error.message })
+			return res.status(500).json({ message: 'Có lỗi xảy ra' + error.message })
 		}
 	},
 
 	destroy: async (req, res) => {
 		try {
-			const { public_name } = req.body
-			if (!public_name || public_name.length === 0)
+			const public_name = req.params.public_name
+
+			if (!public_name)
 				return res.status(400).json({ message: 'Không có ảnh nào để xóa' })
-			const arr = [...public_name]
-			for (let item of arr) {
-				await unlink(`./uploads/${item}`)
-			}
-			res.status(200).json({ message: 'Xóa ảnh thành công' })
+
+			await unlink(`./uploads/${public_name}`)
+
+			return res.status(200).json({ message: 'Xóa ảnh thành công' })
 		} catch (error) {
-			return res
-				.status(500)
-				.json({ message: 'Có lỗi xảy ra, ảnh không tồn tại' })
+			return res.status(500).json({ message: 'Có lỗi xảy ra' + error.message })
 		}
 	},
 }
