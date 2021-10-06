@@ -69,7 +69,7 @@ const PaymentController = {
 				status: paid,
 				quantity,
 				paymentID,
-				method: method || 'COD',
+				method: new String(method).toUpperCase(),
 			})
 			await newPayment.save()
 			return res

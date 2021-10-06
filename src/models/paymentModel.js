@@ -38,6 +38,7 @@ const paymentSchema = mongoose.Schema(
 		method: {
 			type: String,
 			required: true,
+			default: 'COD',
 		},
 		total: {
 			type: Number,

@@ -10,7 +10,7 @@ function route(app) {
 	app.use('/api_v1/product', productRouter)
 	app.use('/api_v1', uploadRouter)
 	app.use('/api_v1/payment', paymentRouter)
-	app.use('/api_v1/slide', sliderRouter)
+	app.use('/api_v1/slider', sliderRouter)
 }
 
 module.exports = route

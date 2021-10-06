@@ -6,10 +6,6 @@ const sliderSchema = mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		description: {
-			type: String,
-			default: 'Một sản phẩm tuyệt vời đến từ vị trí của Shop :3',
-		},
 		image: {
 			type: String,
 		},
