@@ -33,6 +33,25 @@ const sliderController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+	updateSlider: async (req, res) => {
+		try {
+			const _id = req.params.id
+			const { activate } = req.body
+			const slide = await Slider.findByIdAndUpdate(_id, { activate })
+			if (!slide)
+				return res
+					.status(404)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({
+					status: 'Success',
+					message: `${activate ? 'Hiện' : 'Ẩn'} slide thành công`,
+				})
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
 
 	deleteSlider: async (req, res) => {
 		try {

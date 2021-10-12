@@ -9,6 +9,10 @@ const sliderSchema = mongoose.Schema(
 		image: {
 			type: String,
 		},
+		activate: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	{
 		timestamps: true,
