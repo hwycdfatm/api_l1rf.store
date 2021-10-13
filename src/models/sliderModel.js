@@ -7,7 +7,7 @@ const sliderSchema = mongoose.Schema(
 			required: true,
 		},
 		image: {
-			type: String,
+			type: Object,
 		},
 		activate: {
 			type: Boolean,
