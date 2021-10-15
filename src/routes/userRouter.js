@@ -11,7 +11,9 @@ router.post('/register', userController.register)
 // Đăng nhập
 router.post('/login', userController.login)
 // Quên mật khẩu
-router.post('/forget', userController.forgetPassword)
+router.post('/forgort-password', userController.forgortPassword)
+// Thay đổi mật khẩu
+router.post('/change-password', auth, userController.changePassword)
 // Reset Passsword
 router.post('/reset-password', userController.resetPassword)
 // Đăng nhập với Facebook

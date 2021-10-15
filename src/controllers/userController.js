@@ -110,6 +110,7 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+
 	loginWithFacebook: async (req, res) => {
 		try {
 			const { userID, accessToken } = req.body
@@ -289,7 +290,7 @@ const userController = {
 		}
 	},
 
-	forgetPassword: async (req, res) => {
+	forgortPassword: async (req, res) => {
 		try {
 			const { email } = req.body
 			const user = await User.findOne({ email })
@@ -319,7 +320,7 @@ const userController = {
 			const { password } = req.body
 			const { id } = req.user
 			const passwordHash = await bcrypt.hash(password, 12)
-			const result = await Users.findOneAndUpdate(
+			const result = await User.findOneAndUpdate(
 				{ _id: id },
 				{
 					password: passwordHash,
@@ -337,7 +338,42 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-	// Admin route
+
+	changePassword: async (req, res) => {
+		try {
+			const { password, newpassword } = req.body
+			const { id } = req.user
+
+			const user = await User.findById(id)
+
+			const mathPassword = await bcrypt.compare(password, user.password)
+
+			if (!mathPassword)
+				return res
+					.status(400)
+					.json({ status: 'FailPassword', message: 'Mật khẩu không đúng!' })
+
+			const passwordHash = await bcrypt.hash(newpassword, 12)
+
+			const result = await User.findOneAndUpdate(
+				{ _id: id },
+				{
+					password: passwordHash,
+				}
+			)
+			if (!result)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Mật khẩu đã được thay đổi thành công',
+			})
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
 	updateByAdmin: async (req, res) => {
 		try {
 			const _id = req.params.id
@@ -384,11 +420,11 @@ const userController = {
 				.sort(sort)
 				.limit(_limit)
 				.select('-password')
-			if (allUsers.length == 0)
+			if (!allUsers)
 				return res
 					.status(400)
-					.json({ status: 'Fail', message: 'Không có user nào' })
-			return res.status(200).json({ users: allUsers })
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra rồi' })
+			return res.status(200).json({ status: 'Success', users: allUsers })
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}

@@ -13,24 +13,13 @@ const sendMail = (email, url, name) => {
 		from: process.env.USER_MAIL,
 		to: email,
 		subject: 'Yêu cầu khôi phục mật khẩu từ L1RF-STORE',
-		html: `<!DOCTYPE html>
-        <html lang="en">
-        
-        <head>
-            <meta charset="UTF-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
-        </head>
-        
-        <body
-            style="margin: 0; padding: 0 10px; box-sizing: border-box; font-family: 'Source Sans Pro', sans-serif; font-size:14px">
-            <div style="max-width:700px; margin:0 auto; display:flex; flex-direction:column">
+		html: `
+            <div style="max-width:550px; margin:0 auto;">
                 <div
-                    style="background-color:rgb(75, 240, 199); height:80px; display:flex; justify-content: center; align-items:center">
+                    style="background-color:rgb(75, 240, 199); width: 100%; height:80px; display:flex; justify-content: center; align-items:center">
                     <h3 style="text-align:center; font-weight: bolder; color:aliceblue; font-size:30px ">L1RF STORE</h3>
                 </div>
-                <div style="padding:1rem 2rem; ">
+                <div style="padding:1rem 2rem; width: 100%;">
                     <p style="font-weight: 700;">Xin chào ${name} !</p>
                     <p style="font-size:14px;">Gần đây đã có người yêu cầu đặt lại mật khẩu cho tài khoản của bạn</p>
                     <div style="text-align:center; margin-top:2rem">
@@ -52,16 +41,15 @@ const sendMail = (email, url, name) => {
                 <br />
                 <br />
                 <br />
-                <div style="border-top: 1px solid #ccc; text-align: center; padding-top:0.5rem;">
+                <div style="border-top: 1px solid #ccc; text-align: center; padding-top:0.5rem; width: 100%;">
                     <p>@2021 L1RF.ONLINE</p>
                     <span>Bài tập lớn học phần</span>
                     <br />
                     <span>Mai Trí Toàn & Nguyễn Quốc Thịnh</span>
                 </div>
             </div>
-        </body>
-        
-        </html>`,
+  
+       `,
 	}
 
 	transporter.sendMail(mailOptions, (err, data) => {
