@@ -277,8 +277,7 @@ const userController = {
 				removeKeyObj.forEach((key) => delete item[key])
 				cartTemp.push(item)
 			}
-			for (item of cart) {
-			}
+
 			await User.findOneAndUpdate({ _id: req.user.id }, { cart: cartTemp })
 			return res.status(200).json({
 				status: 'Success',

@@ -71,18 +71,32 @@ const productController = {
 		try {
 			// Filter by category
 			const category = req.query.category
+			// Query search
+			const search = req.query.q
+			// Query sort
+			const sort = req.query.sort || '-createdAt'
+			// Init products array :v
+			let products = []
+			// Limit product on page
+			const _limit = parseInt(req.query._limit) || 9
+			const _total_Product = await Product.countDocuments(
+				category ? { category } : {}
+			)
+			// Total Page Of Category
+			const _total_Page = Math.ceil(_total_Product / _limit)
 
 			// Pagination
-			const _limit = parseInt(req.query._limit) || 9
-			const _page = parseInt(req.query._page) || 1
+			const _page =
+				parseInt(req.query._page) < 1
+					? 1
+					: parseInt(req.query._page) > _total_Page
+					? _total_Page
+					: parseInt(req.query._page) || 1
+
 			const _skip = (_page - 1) * _limit
 
-			const search = req.query.q
-			const sort = req.query.sort || '-createdAt'
-			let products = []
 			if (search) {
 				const searchQuery = string_to_slug(search)
-				console.log(searchQuery)
 				products = await Product.find({
 					slug: { $regex: new RegExp(searchQuery, 'i') },
 				})
@@ -96,15 +110,18 @@ const productController = {
 					.sort(sort)
 			}
 
-			const _total_Product = await Product.countDocuments(
-				category ? { category } : {}
-			)
-			const _total_Page = Math.ceil(_total_Product / _limit)
+			// Filter products to shortest
+			const productsShort = products.map(({ title, slug, images, price }) => ({
+				title,
+				slug,
+				images: images[0],
+				price,
+			}))
 
 			return res.status(200).json({
 				status: 'Success',
 				pagination: { _page, _total_Page, _total_Product },
-				data: products,
+				data: productsShort,
 			})
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
