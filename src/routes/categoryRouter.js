@@ -7,8 +7,6 @@ const authAdmin = require('../middlewares/authAdmin')
 // RESTFUL API
 router.get('/', category.getCategories)
 router.post('/', auth, authAdmin, category.createCategory)
-router.put('/:id', auth, authAdmin, category.updateCategory)
-router.patch('/:id/restore', auth, authAdmin, category.restoreCategory)
 router.delete('/:id', auth, authAdmin, category.deleteCategory)
 
 module.exports = router

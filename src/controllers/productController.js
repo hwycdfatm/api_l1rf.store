@@ -1,6 +1,8 @@
 const Product = require('../models/productModel')
 const { unlink } = require('fs').promises
 
+const string_to_slug = require('../utils/stringToSlug')
+
 const productController = {
 	// lấy sản phẩm với slug
 	// [GET] /api/product/:slug
@@ -110,18 +112,10 @@ const productController = {
 					.sort(sort)
 			}
 
-			// Filter products to shortest
-			const productsShort = products.map(({ title, slug, images, price }) => ({
-				title,
-				slug,
-				images: images[0],
-				price,
-			}))
-
 			return res.status(200).json({
 				status: 'Success',
 				pagination: { _page, _total_Page, _total_Product },
-				data: productsShort,
+				data: products,
 			})
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
@@ -261,24 +255,6 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-}
-
-function string_to_slug(str) {
-	str = str.toLowerCase()
-
-	str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-
-	str = str.replace(/[đĐ]/g, 'd')
-
-	str = str.replace(/([^0-9a-z-\s])/g, '')
-
-	str = str.replace(/(\s+)/g, '-')
-
-	str = str.replace(/-+/g, '-')
-
-	str = str.replace(/^-+|-+$/g, '')
-
-	return str
 }
 
 module.exports = productController
