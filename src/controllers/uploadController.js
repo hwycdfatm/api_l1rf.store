@@ -35,6 +35,23 @@ const uploadController = {
 			return res.status(500).json({ message: 'Có lỗi xảy ra' + error.message })
 		}
 	},
+
+	destroyArrayImage: async (req, res) => {
+		try {
+			const { images } = req.body
+
+			if (!images)
+				return res.status(400).json({ message: 'Không có ảnh nào để xóa' })
+
+			for (item of images) {
+				console.log(item)
+				await unlink(`./uploads/${item.public_name}`)
+			}
+			return res.status(200).json({ message: 'Xóa ảnh thành công' })
+		} catch (error) {
+			return res.status(500).json({ message: 'Có lỗi xảy ra' + error.message })
+		}
+	},
 }
 
 module.exports = uploadController
