@@ -100,7 +100,7 @@ const productController = {
 			if (search) {
 				const searchQuery = string_to_slug(search)
 				products = await Product.find({
-					slug: { $regex: new RegExp(searchQuery, 'i') },
+					slug: { $regex: new RegExp('^' + searchQuery) },
 				})
 					.limit(_limit)
 					.skip(_skip)
