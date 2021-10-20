@@ -1,4 +1,6 @@
 const Payment = require('../models/paymentModel')
+const Product = require('../models/productModel')
+const User = require('../models/userModel')
 
 const PaymentController = {
 	// lấy tất cả các hóa đơn
@@ -58,6 +60,7 @@ const PaymentController = {
 
 			const { _id, address, email, name, phone } = user
 			const paymentID = Math.floor(Math.random() * (Date.now() / 10000000))
+
 			const newPayment = new Payment({
 				user_ID: _id,
 				name,
@@ -71,6 +74,9 @@ const PaymentController = {
 				paymentID,
 				method: new String(method).toUpperCase(),
 			})
+
+			console.log(order)
+			await User.findByIdAndUpdate(_id, { cart: [] })
 			await newPayment.save()
 			return res
 				.status(200)
@@ -157,6 +163,12 @@ const PaymentController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
+}
+
+const sold = async (id, quantity) => {
+	await Product.findByIdAndUpdate(id, {
+		sold: (sold) => sold + quantity,
+	})
 }
 
 module.exports = PaymentController
