@@ -11,7 +11,7 @@ const uploadController = {
 			for (let file of files) {
 				images.push({
 					public_name: file.filename,
-					url: `https://${req.headers.host}/images/${file.filename}`,
+					url: `http://${req.headers.host}/images/${file.filename}`,
 				})
 			}
 
@@ -35,6 +35,7 @@ const uploadController = {
 			return res.status(500).json({ message: 'Có lỗi xảy ra' + error.message })
 		}
 	},
+
 	destroyArrayImage: async (req, res) => {
 		try {
 			const { images } = req.body
@@ -43,7 +44,6 @@ const uploadController = {
 				return res.status(400).json({ message: 'Không có ảnh nào để xóa' })
 
 			for (item of images) {
-				console.log(item)
 				await unlink(`./uploads/${item.public_name}`)
 			}
 			return res.status(200).json({ message: 'Xóa ảnh thành công' })

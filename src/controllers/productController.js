@@ -234,22 +234,21 @@ const productController = {
 		try {
 			const id = req.params.id
 			const { images } = await Product.findOneDeleted({ _id: id })
-			if (images && images.length > 1) {
+
+			if (images) {
 				for (let image of images) {
 					await unlink(`./uploads/${image.public_name}`)
 				}
-			} else {
-				await unlink(`./uploads/${images.public_name}`)
 			}
-
 			const product = await Product.deleteOne({ _id: id })
+
 			if (!product)
 				return res
 					.status(400)
 					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
 			return res.status(200).json({
 				status: 'Success',
-				message: 'Đã xóa vĩnh viền user thành công',
+				message: 'Đã xóa vĩnh viền sản phẩm thành công',
 			})
 		} catch (error) {
 			return res.status(500).json({ message: error.message })
