@@ -76,8 +76,14 @@ const PaymentController = {
 			})
 
 			console.log(order)
-			await User.findByIdAndUpdate(_id, { cart: [] })
+
+			order.map((item) =>
+				sold(item._id, item.quantity, item.sold, item.inStock)
+			)
+
 			await newPayment.save()
+			await User.findByIdAndUpdate(_id, { cart: [] })
+
 			return res
 				.status(200)
 				.json({ status: 'Success', message: 'Đặt hàng thành công' })
@@ -165,10 +171,14 @@ const PaymentController = {
 	},
 }
 
-const sold = async (id, quantity) => {
-	await Product.findByIdAndUpdate(id, {
-		sold: (sold) => sold + quantity,
-	})
+const sold = async (id, quantity, oldSold, inStock) => {
+	await Product.findOneAndUpdate(
+		{ _id: id },
+		{
+			sold: quantity + oldSold,
+			inStock: inStock - quantity,
+		}
+	)
 }
 
 module.exports = PaymentController
