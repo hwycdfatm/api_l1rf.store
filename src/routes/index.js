@@ -4,6 +4,7 @@ const uploadRouter = require('./uploadRouter')
 const productRouter = require('./productRouter')
 const paymentRouter = require('./paymentRouter')
 const sliderRouter = require('./sliderRouter')
+
 function route(app) {
 	app.use('/api_v1/user', userRouter)
 	app.use('/api_v1/category', categoryRouter)
