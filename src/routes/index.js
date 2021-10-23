@@ -4,7 +4,7 @@ const uploadRouter = require('./uploadRouter')
 const productRouter = require('./productRouter')
 const paymentRouter = require('./paymentRouter')
 const sliderRouter = require('./sliderRouter')
-
+const assectRouter = require('./assectRouter')
 function route(app) {
 	app.use('/api_v1/user', userRouter)
 	app.use('/api_v1/category', categoryRouter)
@@ -12,6 +12,7 @@ function route(app) {
 	app.use('/api_v1', uploadRouter)
 	app.use('/api_v1/payment', paymentRouter)
 	app.use('/api_v1/slider', sliderRouter)
+	app.use('/api_v1/assect', assectRouter)
 }
 
 module.exports = route

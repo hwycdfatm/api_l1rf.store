@@ -171,6 +171,7 @@ const productController = {
 				slug,
 				price,
 				inStock,
+				size,
 			} = req.body
 
 			const product = await Product.findByIdAndUpdate(id, {
@@ -182,6 +183,7 @@ const productController = {
 				slug,
 				price,
 				inStock,
+				size,
 			})
 
 			if (!product)

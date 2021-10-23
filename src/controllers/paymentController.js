@@ -1,7 +1,7 @@
 const Payment = require('../models/paymentModel')
 const Product = require('../models/productModel')
 const User = require('../models/userModel')
-
+const momoPaymentApi = require('../utils/momoPaymentAPI')
 const PaymentController = {
 	// lấy tất cả các hóa đơn
 	getAllPayments: async (req, res) => {
@@ -74,8 +74,6 @@ const PaymentController = {
 				paymentID,
 				method: new String(method).toUpperCase(),
 			})
-
-			console.log(order)
 
 			order.map((item) =>
 				sold(item._id, item.quantity, item.sold, item.inStock)
