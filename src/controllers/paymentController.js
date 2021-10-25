@@ -6,11 +6,8 @@ const PaymentController = {
 	// Lấy dữ liệu đã phân tích của hóa đơn hàng
 	getDataOfPayments: async (req, res) => {
 		try {
-			const _get = req.params._get || 'month'
-			const result = await Payment.aggregate([
-				{ $project: { name: 1, month: { $month: '$bday' } } },
-				{ $match: { month: 3 } },
-			])
+			const _get = req.params._get
+			const result = await Payment.find()
 			return res.status(200).json({ result })
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })

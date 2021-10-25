@@ -106,10 +106,14 @@ const productController = {
 					.skip(_skip)
 					.sort(sort)
 			} else {
-				products = await Product.find(category ? { category } : {})
-					.limit(_limit)
-					.skip(_skip)
-					.sort(sort)
+				if (_total_Product > 0) {
+					products = await Product.find(category ? { category } : {})
+						.limit(_limit)
+						.skip(_skip)
+						.sort(sort)
+				} else {
+					products = await Product.find(category ? { category } : {}).sort(sort)
+				}
 			}
 
 			return res.status(200).json({
