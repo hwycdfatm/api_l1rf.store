@@ -25,6 +25,7 @@ const assectController = {
 				phone,
 				email,
 				privacy,
+				address,
 			} = req.body
 			const result = await Assect.findByIdAndUpdate(id, {
 				fb,
@@ -35,6 +36,7 @@ const assectController = {
 				phone,
 				email,
 				privacy,
+				address,
 			})
 			if (!result)
 				return res

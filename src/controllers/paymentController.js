@@ -6,9 +6,30 @@ const PaymentController = {
 	// Lấy dữ liệu đã phân tích của hóa đơn hàng
 	getDataOfPayments: async (req, res) => {
 		try {
-			const _get = req.params._get
-			const result = await Payment.find()
-			return res.status(200).json({ result })
+			const { _from, _to } = req.query
+
+			const result = await Payment.find({
+				createdAt: { $gte: _from, $lt: _to },
+			})
+			console.log(result)
+			const formatDateForm = new Date(_from)
+			const formatDateTo = new Date(_to)
+			if (formatDateForm > formatDateTo)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'WTF m gửi gì z bro ?' })
+
+			const array = result.map((order) => {
+				const dateOfOrder = new Date(order.createdAt).getDate()
+			})
+			return res.status(200).json({
+				result,
+				date: new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
+					.toJSON()
+					.slice(0, 10),
+				time: formatDateForm.getDate(),
+				array,
+			})
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
