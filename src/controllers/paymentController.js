@@ -8,27 +8,51 @@ const PaymentController = {
 		try {
 			const { _from, _to } = req.query
 
-			const result = await Payment.find({
-				createdAt: { $gte: _from, $lt: _to },
-			})
-			console.log(result)
-			const formatDateForm = new Date(_from)
-			const formatDateTo = new Date(_to)
-			if (formatDateForm > formatDateTo)
+			const dayFrom = new Date(_from).getDate()
+
+			const dayTo = new Date(_to).getDate()
+
+			const monthFrom = new Date(_from).getMonth()
+
+			const monthTo = new Date(_to).getMonth()
+
+			if (dayFrom > dayTo && monthFrom >= monthTo)
 				return res
 					.status(400)
 					.json({ status: 'Fail', message: 'WTF m gửi gì z bro ?' })
 
-			const array = result.map((order) => {
-				const dateOfOrder = new Date(order.createdAt).getDate()
+			const payments = await Payment.find({
+				createdAt: { $gte: _from, $lt: _to },
 			})
+			const dateArray = []
+			const totalArray = []
+			const quantityArray = []
+			const timeFrom = new Date(_from).getTime()
+			const timeTo = new Date(_to).getTime()
+
+			for (let i = timeFrom; i <= timeTo; i += 24 * 60 * 60 * 1000) {
+				let tempDate = new Date(i).getDate()
+				let tempMonth = new Date(i).getMonth()
+				let total = 0
+				let quantity = 0
+				for (let j = 0; j < payments.length; j++) {
+					if (
+						new Date(payments[j].createdAt).getMonth() === tempMonth &&
+						new Date(payments[j].createdAt).getDate() === tempDate
+					) {
+						total += payments[j].total
+						quantity += payments[j].quantity
+					}
+				}
+				totalArray.push(total)
+				quantityArray.push(quantity)
+				dateArray.push(`${tempDate}/${tempMonth + 1}`)
+			}
+
 			return res.status(200).json({
-				result,
-				date: new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
-					.toJSON()
-					.slice(0, 10),
-				time: formatDateForm.getDate(),
-				array,
+				dateArray,
+				totalArray,
+				quantityArray,
 			})
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
