@@ -7,7 +7,7 @@ const AuthAdmin = require('../middlewares/authAdmin')
 
 router.get('/', Auth, Payment.getPayments)
 router.get('/admin', Auth, AuthAdmin, Payment.getAllPayments)
-router.get('/dataofpayment', Payment.getDataOfPayments)
+router.get('/dataofpayment', Auth, AuthAdmin, Payment.getDataOfPayments)
 router.get('/deleted', Auth, AuthAdmin, Payment.getAllPaymentsDeleted)
 router.post('/', Auth, Payment.createPayment)
 router.put('/:id', Auth, AuthAdmin, Payment.updatePayment)
