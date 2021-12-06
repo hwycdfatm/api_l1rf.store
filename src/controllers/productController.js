@@ -142,6 +142,11 @@ const productController = {
 					.status(400)
 					.json({ status: 'Fail', message: 'Sản phẩm đã tồn tại' })
 
+			if (inStock <= 0)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Vui lòng nhập số lượng hợp lệ' })
+
 			const newProduct = new Product({
 				title,
 				description,
@@ -177,6 +182,11 @@ const productController = {
 				inStock,
 				size,
 			} = req.body
+
+			if (inStock < 0)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Vui lòng nhập số lượng hợp lệ' })
 
 			const product = await Product.findByIdAndUpdate(id, {
 				title,
