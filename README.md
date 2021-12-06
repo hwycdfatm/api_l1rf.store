@@ -1,7 +1,19 @@
 <!-- HOW TO USE ? -->
 
-/api/category => Lấy tất cả các danh mục
+clone it and change your environment in .env and run
 
-/api/category/:slug => Lấy tất cả các sản phẩm thuộc danh mục (:slug)
+```
+npm i
+```
 
-/api/product/:slug => Lấy sản phẩm qua slug (:slug)
+# &&
+
+``` 
+npm run dev // for development
+```
+
+# && 
+
+```
+npm start // for production
+```
