@@ -3,3 +3,4 @@ tmp/
 .env
 
 uploads/
+.git/
