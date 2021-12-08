@@ -229,7 +229,7 @@ const sold = async (id, quantity, oldSold, inStock) => {
 		{ _id: id },
 		{
 			sold: quantity + oldSold,
-			inStock: inStock - quantity,
+			inStock: inStock - quantity < 0 ? 0 : inStock - quantity,
 		}
 	)
 }

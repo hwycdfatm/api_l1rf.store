@@ -41,6 +41,7 @@ const productSchema = mongoose.Schema(
 		inStock: {
 			type: Number,
 			required: true,
+			min: 0,
 		},
 		sold: {
 			type: Number,
