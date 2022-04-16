@@ -29,9 +29,13 @@ if (process.env.NODE_ENV !== 'production') {
 	app.use(morgan('combined'))
 }
 
+const listDomain = JSON.stringify(process.env.CLIENT_URLS)
+	.slice(1, -1)
+	.split(',')
+
 const corsOptions = {
 	//To allow requests from client
-	origin: ['http://localhost:3000', 'https://l1rf.online'],
+	origin: listDomain,
 	credentials: true,
 }
 
