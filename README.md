@@ -24,7 +24,7 @@ CLIENT_URLS = "http://localhost:3000,www.example.com"
 USER_MAIL = YOUR MAIL
 PASSWORD_MAIL = YOUR PASSWORD MAIL
 
-NODE_ENV = development
+NODE_ENV = development   //OR PRODUCTION FOR PRODUCTION
 
 ```
 
