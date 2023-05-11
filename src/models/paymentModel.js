@@ -24,8 +24,13 @@ const paymentSchema = mongoose.Schema(
 			unique: true,
 		},
 		address: {
-			type: String,
+			type: Object,
 			required: true,
+			default: {
+				province: '',
+				district: '',
+				ward: '',
+			},
 		},
 		order: {
 			type: Array,

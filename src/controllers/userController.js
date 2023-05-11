@@ -56,7 +56,7 @@ const userController = {
 				secure: true,
 			})
 
-			res.json({
+			return res.json({
 				status: 'Success',
 				message: 'Đăng ký thành công',
 				accessToken,
@@ -104,7 +104,10 @@ const userController = {
 			return res.status(200).json({
 				status: 'Success',
 				message: 'Đăng nhập thành công',
+				username: user.name,
 				accessToken,
+				cart: user.cart,
+				refreshToken,
 			})
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
@@ -193,10 +196,10 @@ const userController = {
 
 	refreshToken: (req, res) => {
 		try {
-			const refreshToken = req.cookies.refreshToken
+			const refreshToken = req.cookies.refreshToken || req.query.refreshToken
 			if (!refreshToken)
 				return res
-					.status(400)
+					.status(403)
 					.json({ status: 'Fail', message: 'Vui lòng đăng nhập hoặc đăng ký' })
 			jwt.verify(
 				refreshToken,
@@ -208,7 +211,7 @@ const userController = {
 							message: 'Vui lòng đăng nhập hoặc đăng ký',
 						})
 					const accessToken = createAccessToken({ id: user.id })
-					res.json({ user, accessToken })
+					return res.json({ status: 'Success', user, accessToken })
 				}
 			)
 		} catch (error) {
@@ -225,7 +228,10 @@ const userController = {
 					.status(400)
 					.json({ status: 'Fail', message: 'Tài khoản không tồn tại' })
 
-			return res.status(200).json({ user })
+			return res.status(200).json({
+				status: 'Success',
+				user,
+			})
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
@@ -262,34 +268,128 @@ const userController = {
 					.json({ status: 'Fail', message: 'Tài khoản không tồn tại' })
 
 			const { cart } = req.body
-			const removeKeyObj = [
-				'description',
-				'content',
-				'sold',
-				'inStock',
-				'createdAt',
-				'deletedAt',
-				'deleted',
-				'updatedAt',
-			]
-			const cartTemp = []
-			for (item of cart) {
-				removeKeyObj.forEach((key) => delete item[key])
-				cartTemp.push(item)
-			}
 
+			const cartFormDB = user.cart
+
+			const cartTemp = [...cart]
+
+			if (cartFormDB.length > 0) {
+				cart.forEach((cart) => {
+					cartFormDB.forEach((item) => {
+						if (item._id === cart._id && item.size === cart.size) {
+							cart.quantity = cart.quantity + item.quantity
+						} else {
+							cartTemp.push(item)
+						}
+					})
+				})
+			}
 			await User.findOneAndUpdate({ _id: req.user.id }, { cart: cartTemp })
 			return res.status(200).json({
 				status: 'Success',
 				message: 'Thêm vào giỏ hàng thành công',
-				cart,
+				cart: cartTemp,
 			})
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
 
-	forgortPassword: async (req, res) => {
+	removeCart: async (req, res) => {
+		try {
+			const user = await User.findById(req.user.id)
+			if (!user)
+				return res
+					.status(404)
+					.json({ status: 'Fail', message: 'Tài khoản không tồn tại' })
+
+			if (req.query.method === 'all') {
+				await User.findOneAndUpdate({ _id: req.user.id }, { cart: [] })
+
+				return res.status(200).json({
+					status: 'Success',
+					message: 'Xóa thành công',
+					cart: [],
+				})
+			}
+
+			const { cart } = req.body
+
+			const cartFormDB = [...user.cart]
+
+			let cartTemp = []
+
+			cartTemp = [
+				...cartFormDB.filter(
+					(item) => JSON.stringify(item) !== JSON.stringify(cart)
+				),
+			]
+
+			await User.findOneAndUpdate({ _id: req.user.id }, { cart: cartTemp })
+
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Xóa thành công',
+				cart: cartTemp,
+			})
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	updateCart: async (req, res) => {
+		try {
+			const user = await User.findById(req.user.id)
+			if (!user)
+				return res
+					.status(404)
+					.json({ status: 'Fail', message: 'Tài khoản không tồn tại' })
+
+			const { cart } = req.body
+
+			if (user.cart.length === 0) {
+				return res.status(400).json({
+					status: 'Fail',
+					message: 'Giỏ hàng trống',
+				})
+			}
+
+			if (user.cart.includes(cart)) {
+				return res.status(400).json({
+					status: 'Fail',
+					message: 'Sản phẩm không tồn tại trong giỏ hàng',
+				})
+			}
+
+			if (cart.quantity === 0 || cart.quantity > 100) {
+				return res.status(400).json({
+					status: 'Fail',
+					message: 'Số lượng không hợp lệ (0 < số lượng <= 100)',
+				})
+			}
+
+			await User.findOneAndUpdate(
+				{ _id: req.user.id },
+				{
+					$set: {
+						'cart.$[elem].quantity': cart.quantity,
+					},
+				},
+				{
+					arrayFilters: [{ 'elem._id': cart._id, 'elem.size': cart.size }],
+				}
+			)
+
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Cập nhật số lượng thành công',
+			})
+		} catch (error) {
+			return res.status(500).json({ status: 'Fail', message: error.message })
+		}
+	},
+
+	forgotPassword: async (req, res) => {
 		try {
 			const { email } = req.body
 			const user = await User.findOne({ email })
@@ -348,9 +448,10 @@ const userController = {
 			const mathPassword = await bcrypt.compare(password, user.password)
 
 			if (!mathPassword)
-				return res
-					.status(400)
-					.json({ status: 'FailPassword', message: 'Mật khẩu không đúng!' })
+				return res.status(400).json({
+					status: 'FailPassword',
+					message: 'Mật khẩu hiện tại không đúng!',
+				})
 
 			const passwordHash = await bcrypt.hash(newpassword, 12)
 
@@ -501,7 +602,7 @@ const validateEmail = (email) => {
 }
 
 const createAccessToken = (user) => {
-	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '11m' })
+	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
 }
 
 const createRefreshToken = (user) => {

@@ -50,4 +50,5 @@ route(app)
 // Run & lisen port
 app.listen(port, () => {
 	console.log(`App đang chạy ở port:${port}`)
+	console.log(listDomain)
 })

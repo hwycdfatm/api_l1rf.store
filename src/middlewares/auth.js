@@ -19,7 +19,7 @@ const auth = (req, res, next) => {
 			if (!userFromDB)
 				return res
 					.status(400)
-					.json({ status: 'Fail', message: 'Tài khoản bạn bị gì rồi ~ :3' })
+					.json({ status: 'NotFound', message: 'Tài khoản bạn bị gì rồi ~ :3' })
 			if (!userFromDB.activate)
 				return res.status(400).json({
 					status: 'Fail',

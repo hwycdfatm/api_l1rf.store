@@ -24,7 +24,12 @@ const userSchema = new mongoose.Schema(
 			required: true,
 		},
 		address: {
-			type: String,
+			type: Object,
+			default: {
+				province: '',
+				district: '',
+				ward: '',
+			},
 		},
 		role: {
 			type: String,

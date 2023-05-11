@@ -11,7 +11,7 @@ router.post('/register', userController.register)
 // Đăng nhập
 router.post('/login', userController.login)
 // Quên mật khẩu
-router.post('/forgort-password', userController.forgortPassword)
+router.post('/forgot-password', userController.forgotPassword)
 // Thay đổi mật khẩu
 router.post('/change-password', auth, userController.changePassword)
 // Reset Passsword
@@ -28,6 +28,11 @@ router.get('/info', auth, userController.info)
 router.put('/info', auth, userController.updateProfile)
 // Giỏ hàng
 router.patch('/addcart', auth, userController.addCart)
+
+router.patch('/removecart', auth, userController.removeCart)
+
+router.patch('/update-cart', auth, userController.updateCart)
+
 // admin get all user
 router.get('/all', auth, authAdmin, userController.getAllUsers)
 // admin get all user deleted
