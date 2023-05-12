@@ -8,6 +8,8 @@ const fetch = require('node-fetch')
 
 const sendMail = require('../utils/sendMail')
 
+const TokenModel = require('../models/tokenModel')
+
 const userController = {
 	register: async (req, res) => {
 		try {
@@ -398,12 +400,12 @@ const userController = {
 					status: 'Fail',
 					message: 'Email không được xử dụng bởi bất kì tài khoản nào',
 				})
-			const accessToken = createAccessToken({ id: user._id })
+			const accessToken = createAccessToken({ id: user._id }, '30m')
 
-			const url = `${process.env.CLIENT_URL}/user/reset/${accessToken}`
+			const url = `${process.env.CLIENT_URL}/dat-lai-mat-khau/${accessToken}`
 			const name = user.name
 
-			sendMail(email, url, name)
+			sendMail(email, url, name, '30')
 
 			return res.status(200).json({
 				status: 'Success',
@@ -429,6 +431,13 @@ const userController = {
 				return res
 					.status(400)
 					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+
+			const tokenNew = new TokenModel({
+				token: req.header('Authorization'),
+			})
+
+			await tokenNew.save()
+
 			return res.status(200).json({
 				status: 'Success',
 				message: 'Mật khẩu đã được thay đổi thành công',
@@ -601,12 +610,16 @@ const validateEmail = (email) => {
 	return regex.test(String(email).toLowerCase())
 }
 
-const createAccessToken = (user) => {
-	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
+const createAccessToken = (user, expiresIn = '10m') => {
+	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+		expiresIn: expiresIn,
+	})
 }
 
-const createRefreshToken = (user) => {
-	return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
+const createRefreshToken = (user, expiresIn = '7h') => {
+	return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
+		expiresIn: expiresIn,
+	})
 }
 
 module.exports = userController

@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer')
 
-const sendMail = (email, url, name) => {
+const sendMail = (email, url, name, expiresIn) => {
 	const transporter = nodemailer.createTransport({
 		service: 'gmail',
 		auth: {
@@ -24,9 +24,9 @@ const sendMail = (email, url, name) => {
                         style="background-color: black; padding: 0.5rem 1rem; border-radius: 0.3rem; text-decoration: none; font-weight: 300; color:beige">Đặt
                         lại
                         mật
-                        khẩu</a>
+                        khẩu</a> 
                 </div>
-                <br />
+                <p>Liên kết này sẽ hết hạn sau ${expiresIn} phút</p>
                 <br />
                 <p style="font-weight:700;">Bạn đã không yêu cầu thay đổi này ?</p>
                 <span>Nếu bạn đã không yêu cầu mật khẩu mới, hãy bỏ qua email này</span>
