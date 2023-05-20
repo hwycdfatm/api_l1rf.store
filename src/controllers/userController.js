@@ -22,7 +22,8 @@ const userController = {
 					.status(400)
 					.json({ status: 'Fail', message: 'Email không hợp lệ' })
 
-			const user = await User.findOne({ email })
+			const user = await User.findOneWithDeleted({ email })
+
 			if (user)
 				return res
 					.status(400)
@@ -67,7 +68,6 @@ const userController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-
 	login: async (req, res) => {
 		try {
 			const { email, password } = req.body
@@ -110,12 +110,12 @@ const userController = {
 				accessToken,
 				cart: user.cart,
 				refreshToken,
+				admin: user.role !== 'member' ? true : false,
 			})
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	loginWithFacebook: async (req, res) => {
 		try {
 			const { userID, accessToken } = req.body
@@ -184,7 +184,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	logout: async (req, res) => {
 		try {
 			res.clearCookie('refreshToken', { path: '/api_v1/user/refresh_token' })
@@ -195,7 +194,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	refreshToken: (req, res) => {
 		try {
 			const refreshToken = req.cookies.refreshToken || req.query.refreshToken
@@ -220,7 +218,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	info: async (req, res) => {
 		try {
 			const user = await User.findById(req.user.id).select('-password')
@@ -238,15 +235,16 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	updateProfile: async (req, res) => {
 		try {
 			const { name, address, phone } = req.body
 
 			const resultUpdateUser = await User.findByIdAndUpdate(req.user.id, {
-				name,
-				address,
-				phone,
+				$set: {
+					name,
+					address,
+					phone,
+				},
 			})
 			if (!resultUpdateUser)
 				return res
@@ -260,7 +258,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	addCart: async (req, res) => {
 		try {
 			const user = await User.findById(req.user.id)
@@ -296,7 +293,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	removeCart: async (req, res) => {
 		try {
 			const user = await User.findById(req.user.id)
@@ -338,7 +334,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	updateCart: async (req, res) => {
 		try {
 			const user = await User.findById(req.user.id)
@@ -390,16 +385,23 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	forgotPassword: async (req, res) => {
 		try {
 			const { email } = req.body
-			const user = await User.findOne({ email })
+			const user = await User.findOneWithDeleted({ email })
 			if (!user)
 				return res.status(404).json({
 					status: 'Fail',
 					message: 'Email không được xử dụng bởi bất kì tài khoản nào',
 				})
+
+			if (user.deleted === true)
+				return res.status(404).json({
+					status: 'Fail',
+					message:
+						'Tài khoản đã bị khóa, vui lòng liên hệ với quản trị viên để được hỗ trợ!',
+				})
+
 			const accessToken = createAccessToken({ id: user._id }, '30m')
 
 			const url = `${process.env.CLIENT_URL}/dat-lai-mat-khau/${accessToken}`
@@ -415,7 +417,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	resetPassword: async (req, res) => {
 		try {
 			const { password } = req.body
@@ -446,7 +447,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	changePassword: async (req, res) => {
 		try {
 			const { password, newpassword } = req.body
@@ -482,7 +482,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	updateByAdmin: async (req, res) => {
 		try {
 			const _id = req.params.id
@@ -502,7 +501,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	getAllUsers: async (req, res) => {
 		try {
 			const sort = req.query.sort || '-createdAt'
@@ -520,7 +518,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	getAllUsersDeleted: async (req, res) => {
 		try {
 			const sort = req.query.sort || '-createdAt'
@@ -538,7 +535,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	restoreUser: async (req, res) => {
 		try {
 			const _id = req.params.id
@@ -559,7 +555,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	deleteUser: async (req, res) => {
 		try {
 			const _id = req.params.id
@@ -580,7 +575,6 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-
 	deleteForceUser: async (req, res) => {
 		try {
 			const _id = req.params.id
@@ -610,7 +604,7 @@ const validateEmail = (email) => {
 	return regex.test(String(email).toLowerCase())
 }
 
-const createAccessToken = (user, expiresIn = '10m') => {
+const createAccessToken = (user, expiresIn = '30m') => {
 	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
 		expiresIn: expiresIn,
 	})

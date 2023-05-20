@@ -4,8 +4,6 @@ const { unlink } = require('fs').promises
 const string_to_slug = require('../utils/stringToSlug')
 
 const productController = {
-	// lấy sản phẩm với slug
-	// [GET] /api/product/:slug
 	getProduct: async (req, res) => {
 		try {
 			const product = await Product.findOne({ slug: req.params.slug })
@@ -20,7 +18,6 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-
 	getProductById: async (req, res) => {
 		try {
 			const product = await Product.findOne({ _id: req.params.id })
@@ -35,7 +32,6 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-
 	getProductDeleted: async (req, res) => {
 		try {
 			// Filter by category
@@ -67,8 +63,6 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-
-	// [GET] /api/product?category=????
 	getProducts: async (req, res) => {
 		try {
 			// Filter by category
@@ -77,12 +71,15 @@ const productController = {
 			const search = req.query.q
 			// Query sort
 			const sort = req.query.sort || '-createdAt'
+
+			// hidden field
+			const hidden = req.query.hidden || false
 			// Init products array :v
 			let products = []
 			// Limit product on page
 			const _limit = parseInt(req.query._limit) || 9
 			const _total_Product = await Product.countDocuments(
-				category ? { category } : {}
+				category ? { category, hidden } : { hidden }
 			)
 			// Total Page Of Category
 			const _total_Page = Math.ceil(_total_Product / _limit)
@@ -101,18 +98,23 @@ const productController = {
 				const searchQuery = string_to_slug(search)
 				products = await Product.find({
 					slug: { $regex: new RegExp('^' + searchQuery) },
+					hidden,
 				})
 					.limit(_limit)
 					.skip(_skip)
 					.sort(sort)
 			} else {
 				if (_total_Product > 0) {
-					products = await Product.find(category ? { category } : {})
+					products = await Product.find(
+						category ? { category, hidden } : { hidden }
+					)
 						.limit(_limit)
 						.skip(_skip)
 						.sort(sort)
 				} else {
-					products = await Product.find(category ? { category } : {}).sort(sort)
+					products = await Product.find(
+						category ? { category, hidden } : { hidden }
+					).sort(sort)
 				}
 			}
 
@@ -125,9 +127,6 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-
-	// Tạo mới sản phẩm
-	// [POST] /api/product/
 	createProduct: async (req, res) => {
 		try {
 			const { title, description, content, images, category, price, inStock } =
@@ -165,9 +164,6 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-
-	// Cập nhật sản phẩm
-	// [PUT] /api/product/:id
 	updateProduct: async (req, res) => {
 		try {
 			const id = req.params.id
@@ -189,15 +185,18 @@ const productController = {
 					.json({ status: 'Fail', message: 'Vui lòng nhập số lượng hợp lệ' })
 
 			const product = await Product.findByIdAndUpdate(id, {
-				title,
-				description,
-				content,
-				images,
-				category,
-				slug,
-				price,
-				inStock,
-				size,
+				$set: {
+					title: title,
+					description: description,
+					content: content,
+					images: images,
+					category: category,
+					slug: slug,
+					price: price,
+					inStock: inStock,
+					size: size,
+					updatedAt: Date.now(),
+				},
 			})
 
 			if (!product)
@@ -211,8 +210,28 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+	changeVisibility: async (req, res) => {
+		try {
+			const id = req.params.id
+			const { visibility } = req.body
 
-	// restore
+			const product = await Product.findByIdAndUpdate(id, {
+				$set: {
+					hidden: visibility,
+				},
+			})
+
+			if (!product)
+				return res
+					.status(400)
+					.json({ status: 'Fail', message: 'Có lỗi xảy ra' })
+			return res
+				.status(200)
+				.json({ status: 'Success', message: 'Cập nhật sản phẩm thành công' })
+		} catch (error) {
+			return res.status(500).json({ message: error.message })
+		}
+	},
 	restoreProduct: async (req, res) => {
 		try {
 			const _id = req.params.id
@@ -229,8 +248,6 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
-	// Xóa sản phẩm
-	// [DELETE] /api/product/:id
 	deleteProduct: async (req, res) => {
 		try {
 			const id = req.params.id
@@ -249,13 +266,13 @@ const productController = {
 	deleteProductDeleted: async (req, res) => {
 		try {
 			const id = req.params.id
-			const { images } = await Product.findOneDeleted({ _id: id })
+			// const { images } = await Product.findOneDeleted({ _id: id })
 
-			if (images) {
-				for (let image of images) {
-					await unlink(`./uploads/${image.public_name}`)
-				}
-			}
+			// if (images) {
+			// 	for (let image of images) {
+			// 		await unlink(`./uploads/${image.public_name}`)
+			// 	}
+			// }
 			const product = await Product.deleteOne({ _id: id })
 
 			if (!product)

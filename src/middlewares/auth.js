@@ -3,7 +3,7 @@ const User = require('../models/userModel')
 const auth = (req, res, next) => {
 	try {
 		const token = req.header('Authorization')
-		if (!token)
+		if (!token || token === 'null' || token === 'undefined')
 			return res
 				.status(400)
 				.json({ status: 'notauth', message: 'Bạn không có quyền truy cập !' })

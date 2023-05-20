@@ -180,7 +180,12 @@ const PaymentController = {
 				return res
 					.status(400)
 					.json({ status: 'Fail', message: 'Không có đơn hàng nào được chọn' })
-			await Payment.updateOne({ _id }, { status })
+			await Payment.updateOne(
+				{ _id },
+				{
+					$set: { status: status, updatedAt: Date.now() },
+				}
+			)
 			return res.status(200).json({
 				status: 'Success',
 				message: 'Cập nhật trạng thái đơn hàng thành công',

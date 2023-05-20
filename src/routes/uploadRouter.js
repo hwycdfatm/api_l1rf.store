@@ -15,6 +15,12 @@ router.post(
 )
 
 router.post('/destroy/:public_name', auth, authAdmin, uploadController.destroy)
+router.post(
+	'/destroyFromGitHub/:public_name',
+	auth,
+	authAdmin,
+	uploadController.destroy
+)
 
 router.post(
 	'/destroy-array',
