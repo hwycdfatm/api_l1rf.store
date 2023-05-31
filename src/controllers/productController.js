@@ -63,26 +63,112 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+	// getProducts: async (req, res) => {
+	// 	try {
+	// 		// Filter by category
+	// 		const category = req.query.category
+	// 		// Query search
+	// 		const search = req.query.q
+	// 		// Query sort
+	// 		const sort = req.query.sort || '-createdAt'
+
+	// 		// hidden field
+	// 		const hidden = req.query.hidden || false
+	// 		// Init products array :v
+	// 		let products = []
+	// 		// Limit product on page
+	// 		const _limit = parseInt(req.query._limit) || 9
+	// 		const _total_Product = await Product.countDocuments(
+	// 			category ? { category, hidden } : { hidden }
+	// 		)
+	// 		// Total Page Of Category
+	// 		const _total_Page = Math.ceil(_total_Product / _limit)
+
+	// 		// Pagination
+	// 		const _page =
+	// 			parseInt(req.query._page) < 1
+	// 				? 1
+	// 				: parseInt(req.query._page) > _total_Page
+	// 				? _total_Page
+	// 				: parseInt(req.query._page) || 1
+
+	// 		const _skip = (_page - 1) * _limit
+
+	// 		if (search) {
+	// 			const searchQuery = string_to_slug(search)
+	// 			products = await Product.find({
+	// 				slug: { $regex: new RegExp('^' + searchQuery) },
+	// 				hidden,
+	// 			})
+	// 				.limit(_limit)
+	// 				.skip(_skip)
+	// 				.sort(sort)
+	// 		} else {
+	// 			if (_total_Product > 0) {
+	// 				products = await Product.find(
+	// 					category ? { category, hidden } : { hidden }
+	// 				)
+	// 					.limit(_limit)
+	// 					.skip(_skip)
+	// 					.sort(sort)
+	// 			} else {
+	// 				products = await Product.find(
+	// 					category ? { category, hidden } : { hidden }
+	// 				).sort(sort)
+	// 			}
+	// 		}
+
+	// 		return res.status(200).json({
+	// 			status: 'Success',
+	// 			pagination: { _page, _total_Page, _total_Product },
+	// 			data: products,
+	// 		})
+	// 	} catch (error) {
+	// 		return res.status(500).json({ message: error.message })
+	// 	}
+	// },
 	getProducts: async (req, res) => {
 		try {
-			// Filter by category
-			const category = req.query.category
-			// Query search
-			const search = req.query.q
-			// Query sort
-			const sort = req.query.sort || '-createdAt'
+			const { category, hidden = false, q, sort = '-createdAt' } = req.query
 
-			// hidden field
-			const hidden = req.query.hidden || false
-			// Init products array :v
-			let products = []
 			// Limit product on page
 			const _limit = parseInt(req.query._limit) || 9
-			const _total_Product = await Product.countDocuments(
-				category ? { category, hidden } : { hidden }
-			)
+			const price = parseStringtoArr(req.query.price)
+			const size = parseStringtoArr(req.query.size)
+			// Filter
+			const filter = {
+				$and: [
+					{
+						hidden,
+						// filter by search
+						...(q
+							? {
+									slug: {
+										$regex: new RegExp('^' + string_to_slug(q)),
+									},
+							  }
+							: {}),
+						// filter by category
+						...(category ? { category } : {}),
+						// filter by price
+						...(price ? { price: { $gte: price[0], $lte: price[1] } } : {}),
+						// filter by size
+						...(size ? { size: { $in: size } } : {}),
+					},
+				],
+			}
+
+			// Total product of filter
+			const _total_Product = await Product.countDocuments(filter)
 			// Total Page Of Category
 			const _total_Page = Math.ceil(_total_Product / _limit)
+
+			if (_total_Product <= 0)
+				return res.status(200).json({
+					status: 'Success',
+					pagination: { _page: 1, _total_Page, _total_Product },
+					data: [],
+				})
 
 			// Pagination
 			const _page =
@@ -94,29 +180,11 @@ const productController = {
 
 			const _skip = (_page - 1) * _limit
 
-			if (search) {
-				const searchQuery = string_to_slug(search)
-				products = await Product.find({
-					slug: { $regex: new RegExp('^' + searchQuery) },
-					hidden,
-				})
-					.limit(_limit)
-					.skip(_skip)
-					.sort(sort)
-			} else {
-				if (_total_Product > 0) {
-					products = await Product.find(
-						category ? { category, hidden } : { hidden }
-					)
-						.limit(_limit)
-						.skip(_skip)
-						.sort(sort)
-				} else {
-					products = await Product.find(
-						category ? { category, hidden } : { hidden }
-					).sort(sort)
-				}
-			}
+			// Get products
+			const products = await Product.find(filter)
+				.limit(_limit)
+				.skip(_skip)
+				.sort(sort)
 
 			return res.status(200).json({
 				status: 'Success',
@@ -287,6 +355,12 @@ const productController = {
 			return res.status(500).json({ message: error.message })
 		}
 	},
+}
+
+const parseStringtoArr = (str) => {
+	if (!str) return null
+
+	return str.split('-')
 }
 
 module.exports = productController

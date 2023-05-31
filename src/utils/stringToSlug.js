@@ -1,4 +1,6 @@
 module.exports = function string_to_slug(str) {
+	if (str === undefined) return ''
+
 	str = str.toLowerCase()
 
 	str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
