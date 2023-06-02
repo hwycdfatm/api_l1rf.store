@@ -20,9 +20,9 @@ const auth = (req, res, next) => {
 				return res
 					.status(400)
 					.json({ status: 'NotFound', message: 'Tài khoản bạn bị gì rồi ~ :3' })
-			if (!userFromDB.activate)
+			if (!userFromDB.activate || userFromDB.deleted)
 				return res.status(400).json({
-					status: 'Fail',
+					status: 'Lock',
 					message: 'Tài khoản của bạn đã bị khóa',
 				})
 			req.user = userFromDB

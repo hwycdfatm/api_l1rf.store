@@ -85,9 +85,9 @@ const userController = {
 					.status(400)
 					.json({ status: 'Fail', message: 'Thông tin đăng nhập không hợp lệ' })
 
-			if (!user.activate)
+			if (!user.activate || user.deleted)
 				return res.status(400).json({
-					status: 'Fail',
+					status: 'Lock',
 					message: 'Tài khoản bạn đã bị khóa',
 				})
 
@@ -176,9 +176,9 @@ const userController = {
 			// Nếu tồn tại email thì đăng nhập và trả về token
 
 			if (user) {
-				if (!user.activate)
+				if (!user.activate || user.deleted)
 					return res.status(400).json({
-						status: 'Fail',
+						status: 'Lock',
 						message: 'Tài khoản bạn đã bị khóa',
 					})
 
@@ -196,7 +196,11 @@ const userController = {
 				})
 				// Lưu vào database
 				await newUser.save()
-				userData = newUser
+				userData = {
+					name,
+					cart: [],
+					admin: false,
+				}
 				accessTokenGen = createAccessToken({ id: newUser._id })
 				refreshTokenGen = createRefreshToken({ id: newUser._id })
 			}
@@ -432,7 +436,7 @@ const userController = {
 					message: 'Email không được xử dụng bởi bất kì tài khoản nào',
 				})
 
-			if (user.deleted === true)
+			if (user.deleted || !user.activate)
 				return res.status(404).json({
 					status: 'Fail',
 					message:
