@@ -17,7 +17,7 @@ router.post('/change-password', auth, userController.changePassword)
 // Reset Passsword
 router.post('/reset-password', auth, userController.resetPassword)
 // Đăng nhập với Facebook
-router.post('/loginwithfacebook', userController.loginWithFacebook)
+router.post('/loginwithsocial', userController.loginWithSocial)
 // Đăng xuất
 router.get('/logout', userController.logout)
 // Làm mới Token

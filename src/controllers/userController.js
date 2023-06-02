@@ -116,70 +116,107 @@ const userController = {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
 	},
-	loginWithFacebook: async (req, res) => {
+	loginWithSocial: async (req, res) => {
 		try {
-			const { userID, accessToken } = req.body
+			const { social } = req.body
 
-			let urlGraph = `https://graph.facebook.com/v11.0/${userID}?fields=name%2Cemail%2Cpicture&access_token=${accessToken}`
+			let email, name
 
-			const data = await fetch(urlGraph, {
-				method: 'GET',
-			})
-			const result = await data.json()
+			if (!social || social === '' || social === undefined || social === null)
+				return res.status(400).json({
+					status: 'Fail',
+					message: 'Có lỗi xảy ra, đăng nhập thất bại.',
+				})
 
-			const { email, name, picture } = result
+			if (social === 'google') {
+				const { access_token } = req.body
+				const data = await fetch(
+					`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${access_token}`,
+					{
+						methof: 'GET',
+						headers: {
+							Authorization: `Bearer ${access_token}`,
+							Accept: 'application/json',
+						},
+					}
+				)
 
-			const user = await User.findOne({ email })
+				const result = await data.json()
 
+				if (result.error)
+					return res.status(400).json({
+						status: 'Fail',
+						message: 'Có lỗi xảy ra, đăng nhập thất bại.',
+					})
+				email = result.email
+				name = result.name
+			} else if (social === 'facebook') {
+				const { userID, accessToken } = req.body
+
+				let urlGraph = `https://graph.facebook.com/v11.0/${userID}?fields=name%2Cemail%2Cpicture&access_token=${accessToken}`
+
+				const data = await fetch(urlGraph, {
+					method: 'GET',
+				})
+				const result = await data.json()
+
+				if (result.error)
+					return res.status(400).json({
+						status: 'Fail',
+						message: 'Có lỗi xảy ra, đăng nhập thất bại.',
+					})
+
+				email = result.email
+				name = result.name
+			}
+
+			const user = await User.findOneWithDeleted({ email })
+
+			let accessTokenGen, refreshTokenGen, userData
 			// Nếu tồn tại email thì đăng nhập và trả về token
+
 			if (user) {
-				const accessToken = createAccessToken({ id: user._id })
-				const refreshToken = createRefreshToken({ id: user._id })
+				if (!user.activate)
+					return res.status(400).json({
+						status: 'Fail',
+						message: 'Tài khoản bạn đã bị khóa',
+					})
 
-				res.cookie('refreshToken', refreshToken, {
-					httpOnly: true,
-					path: '/api_v1/user/refresh_token',
-					maxAge: 7 * 24 * 60 * 60 * 1000,
-					sameSite: 'none',
-					secure: true,
-				})
-
-				return res.status(200).json({
-					status: 'Success',
-					message: 'Đăng nhập thành công',
-					accessToken,
-				})
+				accessTokenGen = createAccessToken({ id: user._id })
+				refreshTokenGen = createRefreshToken({ id: user._id })
+				userData = user
 			} else {
 				// Nếu chưa đăng nhập hoặc gì đó thì sẽ tự động đăng ký và tự đăng nhập luôn
-				const password = `${email}toanndz${name}ihnuey${process.env.CLOUD_API_SECRET}`
-				const avatar = picture.url
+				const password = `${email}toanndz${name}${process.env.CLOUD_API_SECRET}`
 				const passwordHash = await bcrypt.hash(password, 10)
 				const newUser = new User({
 					name,
 					email,
-					avatar,
 					password: passwordHash,
 				})
 				// Lưu vào database
 				await newUser.save()
-
-				const accessToken = createAccessToken({ id: newUser._id })
-				const refreshToken = createRefreshToken({ id: newUser._id })
-
-				res.cookie('refreshToken', refreshToken, {
-					httpOnly: true,
-					path: '/api_v1/user/refresh_token',
-					maxAge: 7 * 24 * 60 * 60 * 1000,
-					sameSite: 'none',
-					secure: true,
-				})
-
-				return res.status(200).json({
-					status: 'Success',
-					message: 'Đăng nhập thành công',
-					accessToken,
-				})
+				userData = newUser
+				accessTokenGen = createAccessToken({ id: newUser._id })
+				refreshTokenGen = createRefreshToken({ id: newUser._id })
 			}
+			res.cookie('refreshToken', refreshTokenGen, {
+				httpOnly: true,
+				path: '/api_v1/user/refresh_token',
+				maxAge: 7 * 24 * 60 * 60 * 1000,
+				sameSite: 'none',
+				secure: true,
+			})
+
+			return res.status(200).json({
+				status: 'Success',
+				message: 'Đăng nhập thành công',
+				accessToken: accessTokenGen,
+				username: userData.name,
+				cart: userData.cart,
+				refreshToken: refreshTokenGen,
+				admin: userData.role !== 'member' ? true : false,
+			})
 		} catch (error) {
 			return res.status(500).json({ status: 'Fail', message: error.message })
 		}
